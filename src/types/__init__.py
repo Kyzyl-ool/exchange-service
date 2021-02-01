@@ -15,3 +15,6 @@ class IndicatorType(Generic[PayloadType]):
     value: float  # значение индикатора
     payload: Optional[PayloadType]  # любая полезная информация про индикатор
 
+
+
+
