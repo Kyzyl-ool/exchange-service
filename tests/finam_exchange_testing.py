@@ -5,6 +5,7 @@ from src.exchange.types import Timeframe, Candle
 INSTRUMENT_ID = '../data/TATN_210101_210131.csv'
 PUNCT = 0.1
 
+
 class SimpleCheck(unittest.TestCase):
     def setUp(self) -> None:
         self.exchange = FinamExchangeTestClient()
