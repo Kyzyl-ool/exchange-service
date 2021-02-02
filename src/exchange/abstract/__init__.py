@@ -1,8 +1,8 @@
-from .types import Candle, Timeframe, OrderState, LimitOrderRequest, MarketOrderRequest
+from src.exchange.types import Candle, Timeframe, OrderState, LimitOrderRequest, MarketOrderRequest
 from typing import Callable, List, Dict
 
 
-class ExchangeClient:
+class AbstractExchangeClient:
     orders: Dict[str, OrderState]
 
     def ohlc_subscribe(self, instrument_id: str, timeframe: Timeframe, handler: Callable[[Candle], None]):
@@ -15,7 +15,6 @@ class ExchangeClient:
         """
         raise NotImplementedError()
 
-
     def limit_order(self, order: LimitOrderRequest) -> str:
         raise NotImplementedError()
 
@@ -24,5 +23,3 @@ class ExchangeClient:
 
     def cancel_order(self, order_id: str):
         raise NotImplementedError()
-
-

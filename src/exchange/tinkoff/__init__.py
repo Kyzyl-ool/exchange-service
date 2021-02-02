@@ -1,9 +1,9 @@
-from .. import ExchangeClient
-from ..types import Candle, Timeframe, OrderState
-from typing import Callable, List
+from src.exchange.abstract import AbstractExchangeClient
+from src.exchange.types import Candle, Timeframe
+from typing import Callable
 
 
-class TinkoffExchangeClient(ExchangeClient):
+class TinkoffExchangeClient(AbstractExchangeClient):
     def ohlc_subscribe(self, instrument_id: str, timeframe: Timeframe, handler: Callable[[Candle], None]):
         """
         Подписаться на обновления японской свечи по инструменту

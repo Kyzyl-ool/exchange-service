@@ -1,6 +1,6 @@
 import unittest
-from src.exchange_client.finam_test import FinamExchangeTestClient
-from src.exchange_client.types import Timeframe
+from src.exchange.finam_test import FinamExchangeTestClient
+from src.exchange.types import Timeframe, Candle
 
 
 class MyTestCase(unittest.TestCase):
@@ -9,7 +9,7 @@ class MyTestCase(unittest.TestCase):
         self.amount_of_calls = 0
 
     def test_handler_calls(self):
-        def handler():
+        def handler(candle: Candle):
             self.amount_of_calls += 1
 
         self.exchange.ohlc_subscribe('../data/TATN_210101_210131.csv', Timeframe.M1, handler)

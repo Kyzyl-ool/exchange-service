@@ -1,5 +1,5 @@
-from src.exchange_client import ExchangeClient
-from src.exchange_client.types import Candle, Timeframe, OrderState, LimitOrderRequest, MarketOrderRequest
+from src.exchange.abstract import AbstractExchangeClient
+from src.exchange.types import Candle, Timeframe, OrderState, LimitOrderRequest, MarketOrderRequest
 from typing import Callable
 import pandas as pd
 from src.utils import D, trade_toolkit
@@ -9,7 +9,7 @@ import datetime
 INITIAL_MONEY = 100000
 
 
-class FinamExchangeTestClient(ExchangeClient):
+class FinamExchangeTestClient(AbstractExchangeClient):
     df: pd.DataFrame
     portfolio: trade_toolkit.Portfolio(initial_money=INITIAL_MONEY)
     current_index: int = -1
