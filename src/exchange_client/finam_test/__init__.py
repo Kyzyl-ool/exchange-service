@@ -4,6 +4,7 @@ from typing import Callable
 import pandas as pd
 from src.utils import D, trade_toolkit
 from tqdm import tqdm
+import datetime
 
 INITIAL_MONEY = 100000
 
@@ -26,6 +27,7 @@ class FinamExchangeTestClient(ExchangeClient):
         """
         self.df = pd.read_csv(instrument_id)
         self.df = D.add_col(self.df, '<DATETIME>', D.make_datetime(self.df))
+        self.df['<DATETIME>'] -= datetime.timedelta(minutes=1)
 
         for i, row in tqdm(self.df.iterrows()):
             self.current_index = i
