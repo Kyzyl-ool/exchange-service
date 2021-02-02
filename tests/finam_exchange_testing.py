@@ -2,8 +2,10 @@ import unittest
 from src.exchange.finam_test import FinamExchangeTestClient
 from src.exchange.types import Timeframe, Candle
 
+INSTRUMENT_ID = '../data/TATN_210101_210131.csv'
+PUNCT = 0.1
 
-class MyTestCase(unittest.TestCase):
+class SimpleCheck(unittest.TestCase):
     def setUp(self) -> None:
         self.exchange = FinamExchangeTestClient()
         self.amount_of_calls = 0
@@ -16,10 +18,36 @@ class MyTestCase(unittest.TestCase):
             self.amount_of_calls += 1
             self.maximum = max(candle['close'], self.maximum)
 
-        self.exchange.ohlc_subscribe('../data/TATN_210101_210131.csv', Timeframe.M1, handler)
+        self.exchange.ohlc_subscribe(INSTRUMENT_ID, Timeframe.M1, handler)
 
         self.assertEqual(self.amount_of_calls, len(self.exchange.df))
         self.assertAlmostEqual(self.maximum, self.exchange.df['<CLOSE>'].max(), delta=0.1)
+
+
+class CheckOrders(unittest.TestCase):
+    def setUp(self) -> None:
+        self.exchange = FinamExchangeTestClient()
+        self.counter = 0
+
+    def test(self):
+        def handler(candle: Candle):
+            self.counter += 1
+            if self.counter == 10000:
+                self.exchange.market_order({
+                    'id': INSTRUMENT_ID,
+                    'punct': PUNCT,
+                    'buy': True,
+                    'volume': 1
+                })
+        self.exchange.ohlc_subscribe(INSTRUMENT_ID, Timeframe.M1, handler)
+        self.exchange.market_order({
+            'id': INSTRUMENT_ID,
+            'punct': PUNCT,
+            'buy': False,
+            'volume': 1
+        })
+        self.assertEqual(len(self.exchange.portfolio.log), 2)
+        self.assertEqual(self.exchange.portfolio.log[1]['p'], self.exchange.df['<CLOSE>'].values[-1])
 
 
 if __name__ == '__main__':

@@ -3,7 +3,7 @@ from typing import Callable, List, Dict
 
 
 class AbstractExchangeClient:
-    orders: Dict[str, OrderState]
+    orders: Dict[str, OrderState] = {}
 
     def ohlc_subscribe(self, instrument_id: str, timeframe: Timeframe, handler: Callable[[Candle], None]):
         """

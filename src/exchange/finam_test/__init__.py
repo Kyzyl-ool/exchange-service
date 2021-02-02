@@ -2,7 +2,8 @@ from src.exchange.abstract import AbstractExchangeClient
 from src.exchange.types import Candle, Timeframe, OrderState, LimitOrderRequest, MarketOrderRequest
 from typing import Callable
 import pandas as pd
-from src.utils import D, trade_toolkit
+from src.utils import D
+from src.utils.trade_toolkit import Portfolio
 from tqdm import tqdm
 import datetime
 
@@ -11,9 +12,10 @@ INITIAL_MONEY = 100000
 
 class FinamExchangeTestClient(AbstractExchangeClient):
     df: pd.DataFrame
-    portfolio: trade_toolkit.Portfolio(initial_money=INITIAL_MONEY)
+    portfolio: Portfolio = Portfolio(initial_money=INITIAL_MONEY, verbose=True)
     current_index: int = -1
     order_index: int = -1
+
 
     def ohlc_subscribe(self, instrument_id: str, timeframe: Timeframe, handler: Callable[[Candle], None]):
         """
