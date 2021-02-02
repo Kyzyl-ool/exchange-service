@@ -3,12 +3,13 @@ from src.exchange_client.types import Candle, Timeframe, OrderState, LimitOrderR
 from typing import Callable
 import pandas as pd
 from src.utils import D, trade_toolkit
+from tqdm import tqdm
 
 INITIAL_MONEY = 100000
 
 
 class FinamExchangeTestClient(ExchangeClient):
-    df: pd.Dataframe
+    df: pd.DataFrame
     portfolio: trade_toolkit.Portfolio(initial_money=INITIAL_MONEY)
     current_index: int = -1
     order_index: int = -1
@@ -26,7 +27,7 @@ class FinamExchangeTestClient(ExchangeClient):
         self.df = pd.read_csv(instrument_id)
         self.df = D.add_col(self.df, '<DATETIME>', D.make_datetime(self.df))
 
-        for i, row in self.df.iterrows():
+        for i, row in tqdm(self.df.iterrows()):
             self.current_index = i
             handler({
                 'close': row['<CLOSE>'],
