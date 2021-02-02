@@ -1,8 +1,8 @@
-from .. import ExchangeClient
-from ..types import Candle, Timeframe, OrderState, LimitOrderRequest, MarketOrderRequest
+from src.exchange_client import ExchangeClient
+from src.exchange_client.types import Candle, Timeframe, OrderState, LimitOrderRequest, MarketOrderRequest
 from typing import Callable
 import pandas as pd
-from ...utils import D, trade_toolkit
+from src.utils import D, trade_toolkit
 
 INITIAL_MONEY = 100000
 

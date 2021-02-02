@@ -1,4 +1,5 @@
-from typing import Union, TypedDict, Optional
+import enum
+from typing import TypedDict, Optional
 
 
 class Candle(TypedDict):
@@ -28,7 +29,17 @@ class Order(Instrument):
     price: float
 
 
-Timeframe = Union['M1', 'M5', 'M10', 'M15', 'M30', 'H1', 'H2', 'H4', 'D1', 'W1']
+class Timeframe(enum.Enum):
+    M1 = 0
+    M5 = 1
+    M10 = 2
+    M15 = 3
+    M30 = 4
+    H1 = 5
+    H2 = 6
+    H4 = 7
+    D1 = 8
+    W1 = 9
 
 
 class LimitOrderRequest(Instrument):
