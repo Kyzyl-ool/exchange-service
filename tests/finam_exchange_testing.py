@@ -1,6 +1,6 @@
 import unittest
 from src.exchange_client.finam_test import FinamExchangeTestClient
-from src.exchange_client.types import Timeframe, Candle
+from src.exchange_client.types import Timeframe
 
 
 class MyTestCase(unittest.TestCase):
@@ -8,11 +8,11 @@ class MyTestCase(unittest.TestCase):
         self.exchange = FinamExchangeTestClient()
         self.amount_of_calls = 0
 
-    def testSBER2018(self):
-        def handler(candle: Candle):
+    def test_handler_calls(self):
+        def handler():
             self.amount_of_calls += 1
 
-        self.exchange.ohlc_subscribe('../data/SBER_180101_181231.csv', Timeframe.M1, handler)
+        self.exchange.ohlc_subscribe('../data/TATN_210101_210131.csv', Timeframe.M1, handler)
 
         self.assertEqual(self.amount_of_calls, len(self.exchange.df))
 

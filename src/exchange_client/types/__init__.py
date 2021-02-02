@@ -1,3 +1,6 @@
+"""
+Все типы, относящиеся к биржевому клиенту
+"""
 import enum
 from typing import TypedDict, Optional
 
@@ -30,6 +33,9 @@ class Order(Instrument):
 
 
 class Timeframe(enum.Enum):
+    """
+    Таймфреймы
+    """
     M1 = 0
     M5 = 1
     M10 = 2
