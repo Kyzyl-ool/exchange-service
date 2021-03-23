@@ -13,12 +13,12 @@ setup(
 
     # Packages
     packages=[
-        "src.exchange.abstract",
-        "src.exchange.finam_test",
-        "src.exchange.tinkoff",
-        "src.exchange.types",
-        "src.utils.D",
-        "src.utils.trade_toolkit",
+        "service.exchange.abstract",
+        "service.exchange.finam_test",
+        "service.exchange.tinkoff",
+        "service.exchange.types",
+        "service.utils.D",
+        "service.utils.trade_toolkit",
     ],
 
     # Include additional files into the package

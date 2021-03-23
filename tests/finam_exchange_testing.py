@@ -1,6 +1,6 @@
 import unittest
-from src.exchange.finam_test import FinamExchangeTestClient
-from src.exchange.types import Timeframe, Candle
+from service.exchange.finam_test import FinamExchangeTestClient
+from service.exchange.types import Timeframe, Candle
 
 INSTRUMENT_ID = '../data/TATN_210101_210131.csv'
 PUNCT = 0.1

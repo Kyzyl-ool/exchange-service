@@ -1,4 +1,4 @@
-from src.exchange.types import Candle, Timeframe, OrderState, LimitOrderRequest, MarketOrderRequest
+from service.exchange.types import Candle, Timeframe, OrderState, LimitOrderRequest, MarketOrderRequest
 from typing import Callable, List, Dict
 
 
