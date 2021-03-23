@@ -12,9 +12,15 @@ INITIAL_MONEY = 100000
 
 class FinamExchangeTestClient(AbstractExchangeClient):
     df: pd.DataFrame
-    portfolio: Portfolio = Portfolio(initial_money=INITIAL_MONEY, verbose=True)
-    current_index: int = -1
-    order_index: int = -1
+    portfolio: Portfolio
+    current_index: int
+    order_index: int
+
+    def __init__(self):
+        self.df = None
+        self.portfolio = Portfolio(initial_money=INITIAL_MONEY, verbose=True)
+        self.current_index = -1
+        self.order_index = -1
 
 
     def ohlc_subscribe(self, instrument_id: str, timeframe: Timeframe, handler: Callable[[Candle], None]):

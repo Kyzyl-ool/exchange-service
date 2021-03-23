@@ -26,12 +26,11 @@ class SimpleCheck(unittest.TestCase):
 
 
 class CheckOrders(unittest.TestCase):
+    exchange: FinamExchangeTestClient
+
     def setUp(self) -> None:
         self.exchange = FinamExchangeTestClient()
         self.counter = 0
-
-    def tearDown(self) -> None:
-        del self.exchange
 
     def test_market_order(self):
         def handler(candle: Candle):
