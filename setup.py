@@ -2,7 +2,7 @@ from distutils.core import setup
 
 setup(
     # Application name:
-    name="victor-exchange",
+    name="victor",
 
     # Version number (initial):
     version="0.1.0",
