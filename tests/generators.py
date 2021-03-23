@@ -1,5 +1,6 @@
 import unittest
 
+from victor.generators import Generator
 from victor.exchange.types import Candle, Timeframe
 from victor.exchange.finam_test import FinamExchangeTestClient
 
@@ -12,10 +13,6 @@ from config import GENERATOR_MAX_DEQUE_LENGTH
 N = 14
 INSTRUMENT_ID = '../data/TATN_210101_210131.csv'
 PUNCT = 0.1
-
-
-def get_close(candle: Candle):
-    return candle['close']
 
 
 class TechnicalIndicatorTest(unittest.TestCase):
@@ -54,3 +51,8 @@ class TechnicalIndicatorTest(unittest.TestCase):
 
         self.assertEqual(len(self.rsi.resultDeque), GENERATOR_MAX_DEQUE_LENGTH)
         self.assertTrue(all(map(lambda x: 0 <= x <= 100, self.rsi.resultDeque)))
+
+    def test_not_implemented_methods(self):
+        abstract_generator = Generator[float](name='some generator')
+
+        self.assertRaises(NotImplementedError, abstract_generator.next, 1)
