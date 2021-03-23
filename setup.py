@@ -12,7 +12,14 @@ setup(
     author_email="kyzyloolk@mail.ru",
 
     # Packages
-    packages=["configuration", "src"],
+    packages=[
+        "src.exchange.abstract",
+        "src.exchange.finam_test",
+        "src.exchange.tinkoff",
+        "src.exchange.types",
+        "src.utils.D",
+        "src.utils.trade_toolkit",
+    ],
 
     # Include additional files into the package
     include_package_data=True,
