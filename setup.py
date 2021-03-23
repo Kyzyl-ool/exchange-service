@@ -2,7 +2,7 @@ from distutils.core import setup
 
 setup(
     # Application name:
-    name="exchange-service",
+    name="victor-exchange",
 
     # Version number (initial):
     version="0.1.0",
@@ -13,12 +13,10 @@ setup(
 
     # Packages
     packages=[
-        "service.exchange.abstract",
-        "service.exchange.finam_test",
-        "service.exchange.tinkoff",
-        "service.exchange.types",
-        "service.utils.D",
-        "service.utils.trade_toolkit",
+        "victor.exchange.abstract",
+        "victor.exchange.finam_test",
+        "victor.exchange.tinkoff",
+        "victor.exchange.types",
     ],
 
     # Include additional files into the package
