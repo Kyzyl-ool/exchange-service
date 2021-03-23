@@ -1,9 +1,9 @@
-from service.exchange.abstract import AbstractExchangeClient
-from service.exchange.types import Candle, Timeframe, OrderState, LimitOrderRequest, MarketOrderRequest
+from victor.exchange.abstract import AbstractExchangeClient
+from victor.exchange.types import Candle, Timeframe, OrderState, LimitOrderRequest, MarketOrderRequest
 from typing import Callable
 import pandas as pd
-from service.utils import D
-from service.utils.trade_toolkit import Portfolio
+from victor.utils import D
+from victor.utils.trade_toolkit import Portfolio
 from tqdm import tqdm
 import datetime
 

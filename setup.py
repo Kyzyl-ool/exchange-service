@@ -17,6 +17,8 @@ setup(
         "victor.exchange.finam_test",
         "victor.exchange.tinkoff",
         "victor.exchange.types",
+        "victor.utils.D",
+        "victor.utils.trade_toolkit",
     ],
 
     # Include additional files into the package
@@ -34,5 +36,9 @@ setup(
     # Dependent packages (distributions)
     install_requires=[
         "flask",
+        "pandas",
+        "matplotlib",
+        "numpy",
+        "tqdm"
     ],
 )

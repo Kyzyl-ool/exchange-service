@@ -1,5 +1,5 @@
-from service.exchange.abstract import AbstractExchangeClient
-from service.exchange.types import Candle, Timeframe
+from victor.exchange.abstract import AbstractExchangeClient
+from victor.exchange.types import Candle, Timeframe
 from typing import Callable
 
 

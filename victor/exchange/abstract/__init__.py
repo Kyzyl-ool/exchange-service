@@ -1,4 +1,4 @@
-from service.exchange.types import Candle, Timeframe, OrderState, LimitOrderRequest, MarketOrderRequest
+from victor.exchange.types import Candle, Timeframe, OrderState, LimitOrderRequest, MarketOrderRequest
 from typing import Callable, List, Dict
 
 
