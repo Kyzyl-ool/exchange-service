@@ -2,7 +2,7 @@ from distutils.core import setup
 
 setup(
     # Application name:
-    name="Exchange service",
+    name="exchange-service",
 
     # Version number (initial):
     version="0.1.0",
