@@ -1,4 +1,4 @@
-from distutils.core import setup
+from distutils.core import setup, Extension
 
 setup(
     # Application name:
@@ -19,6 +19,11 @@ setup(
         "victor.exchange.types",
         "victor.utils.D",
         "victor.utils.trade_toolkit",
+        "victor.generators",
+        "victor.generators.generator",
+        "victor.generators.generator.technical_indicators",
+        "victor.generators.generator_family",
+        "victor.generators.generator_set",
     ],
 
     # Include additional files into the package

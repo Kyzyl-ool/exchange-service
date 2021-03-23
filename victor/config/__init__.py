@@ -5,3 +5,5 @@ port = 9999
 exchanges = [
     finam_test.FinamExchangeTestClient
 ]
+
+GENERATOR_MAX_DEQUE_LENGTH = 30
