@@ -7,6 +7,8 @@ class GeneratorFamily:
     generator_families: Dict[str, GeneratorSet] = {}
 
     def __init__(self, generator_sets: List[GeneratorSet]):
+        assert len(generator_sets) > 0
+
         for generator_set in generator_sets:
             self.generator_families[generator_set.name] = generator_set
 

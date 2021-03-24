@@ -7,7 +7,7 @@ from victor.exchange.types import Candle, Timeframe
 from victor.exchange.finam_test import FinamExchangeTestClient
 
 
-INSTRUMENT_ID = '../data/TATN_210101_210131.csv'
+TEST_INSTRUMENT_ID = '../data/TATN_210101_210131.csv'
 
 
 class TechnicalIndicatorTest(unittest.TestCase, RSIEnvironment):
@@ -30,7 +30,7 @@ class TechnicalIndicatorTest(unittest.TestCase, RSIEnvironment):
         def handler(candle: Candle):
             next_candle(candle)
 
-        self.exchange.ohlc_subscribe(INSTRUMENT_ID, Timeframe.M1, handler)
+        self.exchange.ohlc_subscribe(TEST_INSTRUMENT_ID, Timeframe.M1, handler)
 
         self.assertEqual(len(self.rsi.resultDeque), GENERATOR_MAX_DEQUE_LENGTH)
         self.assertTrue(all(map(lambda x: 0 <= x <= 100, self.rsi.resultDeque)))

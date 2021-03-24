@@ -25,13 +25,6 @@ class Instrument(TypedDict):
     punct: float
 
 
-class Order(Instrument):
-    initialVolume: float
-    executedVolume: float
-    buy: bool
-    price: float
-
-
 class Timeframe(enum.Enum):
     """
     Таймфреймы
@@ -48,15 +41,24 @@ class Timeframe(enum.Enum):
     W1 = 9
 
 
-class LimitOrderRequest(Instrument):
+class Order(Instrument):
+    initialVolume: float
+    executedVolume: float
     buy: bool
     price: float
-    volume: float
 
 
-class MarketOrderRequest(Instrument):
+class OrderRequest(Instrument):
     buy: bool
     volume: float
+
+
+class LimitOrderRequest(OrderRequest):
+    price: float
+
+
+class MarketOrderRequest(OrderRequest):
+    pass
 
 
 class StopOrder(Instrument):

@@ -1,8 +1,9 @@
 import unittest
+
+from victor.config import TEST_INSTRUMENT_ID
 from victor.exchange.finam_test import FinamExchangeTestClient
 from victor.exchange.types import Timeframe, Candle
 
-INSTRUMENT_ID = '../data/TATN_210101_210131.csv'
 PUNCT = 0.1
 
 
@@ -19,7 +20,7 @@ class SimpleCheck(unittest.TestCase):
             self.amount_of_calls += 1
             self.maximum = max(candle['close'], self.maximum)
 
-        self.exchange.ohlc_subscribe(INSTRUMENT_ID, Timeframe.M1, handler)
+        self.exchange.ohlc_subscribe(TEST_INSTRUMENT_ID, Timeframe.M1, handler)
 
         self.assertEqual(self.amount_of_calls, len(self.exchange.df))
         self.assertAlmostEqual(self.maximum, self.exchange.df['<CLOSE>'].max(), delta=0.1)
@@ -37,14 +38,14 @@ class CheckOrders(unittest.TestCase):
             self.counter += 1
             if self.counter == 10000:
                 self.exchange.market_order({
-                    'id': INSTRUMENT_ID,
+                    'id': TEST_INSTRUMENT_ID,
                     'punct': PUNCT,
                     'buy': True,
                     'volume': 1
                 })
-        self.exchange.ohlc_subscribe(INSTRUMENT_ID, Timeframe.M1, handler)
+        self.exchange.ohlc_subscribe(TEST_INSTRUMENT_ID, Timeframe.M1, handler)
         self.exchange.market_order({
-            'id': INSTRUMENT_ID,
+            'id': TEST_INSTRUMENT_ID,
             'punct': PUNCT,
             'buy': False,
             'volume': 1
@@ -55,9 +56,9 @@ class CheckOrders(unittest.TestCase):
     def test_limit_order(self):
         def handler(candle: Candle):
             self.counter += 1
-        self.exchange.ohlc_subscribe(INSTRUMENT_ID, Timeframe.M1, handler)
+        self.exchange.ohlc_subscribe(TEST_INSTRUMENT_ID, Timeframe.M1, handler)
         self.exchange.limit_order({
-            'id': INSTRUMENT_ID,
+            'id': TEST_INSTRUMENT_ID,
             'punct': PUNCT,
             'price': self.exchange.df['<CLOSE>'].values[-1],
             'buy': False,

@@ -7,7 +7,7 @@ from victor.generators import GeneratorSet
 from victor.algorithm.momentum import RSIProbabilityAlgorithm
 
 N = 14
-INSTRUMENT_ID = '../data/TATN_210101_210131.csv'
+TEST_INSTRUMENT_ID = '../data/TATN_210101_210131.csv'
 PUNCT = 0.1
 
 LOWER_BOUND = 10
@@ -40,4 +40,4 @@ class RSIProbabilityAlgorithmTest(unittest.TestCase, RSIEnvironment):
                 self.assertGreaterEqual(p, -1)
                 self.assertLessEqual(p, 1)
 
-        self.exchange.ohlc_subscribe(INSTRUMENT_ID, Timeframe.M1, handler)
+        self.exchange.ohlc_subscribe(TEST_INSTRUMENT_ID, Timeframe.M1, handler)

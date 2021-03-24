@@ -9,7 +9,6 @@ class GeneratorSet:
 
     def __init__(self, generators: List[Generator], name: str):
         assert len(generators) > 0
-        assert name is not None
 
         for generator in generators:
             self.generators[generator.name] = generator
