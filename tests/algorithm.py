@@ -27,8 +27,6 @@ class RSIProbabilityAlgorithmTest(unittest.TestCase, RSIEnvironment):
         self.exchange = FinamExchangeTestClient()
 
     def test_probability(self):
-        probabilities = []
-
         def handler(candle: Candle):
             self.next_candle(candle)
             p = self.algorithm.probability()
