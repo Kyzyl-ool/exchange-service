@@ -1,7 +1,7 @@
 from collections import deque
 from typing import Generic, TypeVar
 
-from config import GENERATOR_MAX_DEQUE_LENGTH
+from victor.config import GENERATOR_MAX_DEQUE_LENGTH
 
 GeneratorType = TypeVar('GeneratorType')  # имена иникаторов
 

@@ -1,37 +1,20 @@
 import unittest
 
+from tests.environments.RSI import RSIEnvironment
+from victor.config import GENERATOR_MAX_DEQUE_LENGTH
 from victor.generators import Generator
 from victor.exchange.types import Candle, Timeframe
 from victor.exchange.finam_test import FinamExchangeTestClient
 
-from victor.generators.generator.technical_indicators.average import EMA
-from victor.generators.generator.technical_indicators.momentum import RSI, RS
-from victor.generators.generator.technical_indicators.price import U, D
 
-from config import GENERATOR_MAX_DEQUE_LENGTH
-
-N = 14
 INSTRUMENT_ID = '../data/TATN_210101_210131.csv'
-PUNCT = 0.1
 
 
-class TechnicalIndicatorTest(unittest.TestCase):
-    rsi: RSI
-    rs: RS
-    ema_u: EMA
-    ema_d: EMA
-    u: U
-    d: D
+class TechnicalIndicatorTest(unittest.TestCase, RSIEnvironment):
+    exchange: FinamExchangeTestClient
 
     def setUp(self) -> None:
-        self.u = U()
-        self.d = D()
-
-        self.ema_u = EMA(N, lambda x: self.u.value(), name='EMA_U')
-        self.ema_d = EMA(N, lambda x: self.d.value(), name='EMA_D')
-
-        self.rs = RS(self.ema_u, self.ema_d)
-        self.rsi = RSI(self.rs)
+        RSIEnvironment.setUp(self)
 
         self.exchange = FinamExchangeTestClient()
 

@@ -1,4 +1,4 @@
-from exchange import finam_test
+from victor.exchange import finam_test
 
 host = '0.0.0.0'
 port = 9999
