@@ -22,7 +22,6 @@ class FinamExchangeTestClient(AbstractExchangeClient):
         self.current_index = -1
         self.order_index = -1
 
-
     def ohlc_subscribe(self, instrument_id: str, timeframe: Timeframe, handler: Callable[[Candle], None]):
         """
         Имитирует подписку на получение свечных данных.

@@ -19,16 +19,13 @@ class TechnicalIndicatorTest(unittest.TestCase, RSIEnvironment):
         self.exchange = FinamExchangeTestClient()
 
     def test_rsi(self):
-        def next_candle(candle: Candle):
+        def handler(candle: Candle):
             self.d.next(candle)
             self.u.next(candle)
             self.ema_u.next(candle)
             self.ema_d.next(candle)
             self.rs.next(candle)
             self.rsi.next(candle)
-
-        def handler(candle: Candle):
-            next_candle(candle)
 
         self.exchange.ohlc_subscribe(TEST_INSTRUMENT_ID, Timeframe.M1, handler)
 

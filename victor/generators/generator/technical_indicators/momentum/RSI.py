@@ -5,23 +5,22 @@ from victor.generators.generator.technical_indicators.momentum import RS
 
 
 class RSI(TechnicalIndicator):
-    rs: TechnicalIndicator
-
     def __init__(self, rs: RS, **kwargs):
         kwargs['name'] = kwargs.get('name', 'RSI')
         super().__init__(**kwargs)
 
         assert rs is not None
+        assert rs.name == 'RS'
 
-        self.rs = rs
+        self.add_dependency(rs)
 
     def next(self, candle: Candle):
-        rs = self.rs.value()
+        rs_value = self.dependencies['RS'].value()
 
         result = None
 
-        if rs is not None:
-            result = 100 - 100 / (1 + rs)
+        if rs_value is not None:
+            result = 100 - 100 / (1 + rs_value)
         else:
             result = 50
 
