@@ -63,7 +63,7 @@ class Trader:
         #  Собираем сделки по всем алгоритмам
         for algorithm in self.algorithms.values():
             decision = algorithm.determine()
-            if len(self.active_rules) <= self.max_orders and decision is not None:
+            if len(self.active_rules) < self.max_orders and decision is not None:
                 rule = algorithm.risk_management.createRule(buy=True if decision == 'BUY' else False)
 
                 self.active_rules.append(rule)

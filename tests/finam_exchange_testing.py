@@ -1,10 +1,8 @@
 import unittest
 
-from victor.config import TEST_INSTRUMENT_ID
+from victor.config import TEST_INSTRUMENT_ID, TEST_PUNCT
 from victor.exchange.finam_test import FinamExchangeTestClient
 from victor.exchange.types import Timeframe, Candle
-
-PUNCT = 0.1
 
 
 class SimpleCheck(unittest.TestCase):
@@ -39,14 +37,14 @@ class CheckOrders(unittest.TestCase):
             if self.counter == 10000:
                 self.exchange.market_order({
                     'id': TEST_INSTRUMENT_ID,
-                    'punct': PUNCT,
+                    'punct': TEST_PUNCT,
                     'buy': True,
                     'volume': 1
                 })
         self.exchange.ohlc_subscribe(TEST_INSTRUMENT_ID, Timeframe.M1, handler)
         self.exchange.market_order({
             'id': TEST_INSTRUMENT_ID,
-            'punct': PUNCT,
+            'punct': TEST_PUNCT,
             'buy': False,
             'volume': 1
         })
@@ -59,7 +57,7 @@ class CheckOrders(unittest.TestCase):
         self.exchange.ohlc_subscribe(TEST_INSTRUMENT_ID, Timeframe.M1, handler)
         self.exchange.limit_order({
             'id': TEST_INSTRUMENT_ID,
-            'punct': PUNCT,
+            'punct': TEST_PUNCT,
             'price': self.exchange.df['<CLOSE>'].values[-1],
             'buy': False,
             'volume': 1
