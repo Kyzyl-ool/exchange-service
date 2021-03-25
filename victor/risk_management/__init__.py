@@ -12,6 +12,7 @@ class Rule:
     closed: bool
     instrument: Instrument
     buy: bool
+    order_id: str
 
     def __init__(self, v0: float, instrument: Instrument, buy: bool):
         self.v0 = v0

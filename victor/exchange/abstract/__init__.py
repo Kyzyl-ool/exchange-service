@@ -4,6 +4,9 @@ from typing import Callable, Dict
 
 class AbstractExchangeClient:
     orders: Dict[str, OrderState] = {}
+    active_orders: Dict[str, OrderState] = {}
+    last_candle: Candle
+    fixed_comission: float # в долях от сделки
 
     def ohlc_subscribe(self, instrument_id: str, timeframe: Timeframe, handler: Callable[[Candle], None]):
         """
@@ -23,3 +26,27 @@ class AbstractExchangeClient:
 
     def cancel_order(self, order_id: str):
         raise NotImplementedError()
+
+    def update(self, candle: Candle) -> None:
+        raise NotImplementedError()
+
+    def financial_result(self, candle: Candle) -> float:
+        result = 0
+        result_volume = 0
+        comission = 0
+
+        for order in self.orders.values():
+            amount = order['price']*order['realized_volume']
+            result -= amount
+            result_volume += order['realized_volume']
+            comission += amount*self.fixed_comission
+
+        for order in self.active_orders.values():
+            amount = candle['close']*order['initial_volume']
+            result -= amount
+            result_volume += order['initial_volume']
+            comission += amount*self.fixed_comission
+
+        assert result_volume == 0
+
+        return result - comission

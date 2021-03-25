@@ -29,7 +29,7 @@ class ClassicRule(Rule):
             if self.buy:
                 if high > self.take_profit or low < self.stop_loss:
                     self.closed = True
-                    logging.info(f'{self.p0} -> {close} (long)')
+                    logging.debug(f'[{self.order_id}]: {self.p0} -> {close} (long)')
 
                     return MarketOrderRequest(
                         volume=self.v0,
@@ -40,7 +40,7 @@ class ClassicRule(Rule):
             else:
                 if low < self.take_profit or high > self.stop_loss:
                     self.closed = True
-                    logging.info(f'{self.p0} -> {close} (short)')
+                    logging.debug(f'[{self.order_id}]: {self.p0} -> {close} (short)')
 
                     return MarketOrderRequest(
                         volume=self.v0,
@@ -54,7 +54,7 @@ class ClassicRule(Rule):
     def exit_force(self):
         self.closed = True
 
-        logging.info(f'{self.p0} -> ? (force exit)')
+        logging.debug(f'[{self.order_id}] {self.p0} -> ? (force exit)')
 
         return MarketOrderRequest(
             volume=self.v0,

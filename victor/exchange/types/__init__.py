@@ -16,8 +16,8 @@ class Candle(TypedDict):
 
 class OrderState(TypedDict):
     price: float
-    initial_volume: int
-    realized_volume: int
+    initial_volume: float
+    realized_volume: float
 
 
 class Instrument(TypedDict):

@@ -46,6 +46,11 @@ class Trader:
         for generator in self.__generators.values():
             generator.next(candle)
 
+    def perform_rule(self, rule: Rule, candle: Candle) -> None:
+        limit_order = rule.enter_order(candle)
+        limit_order_id = self.exchange.limit_order(limit_order)
+        rule.order_id = limit_order_id
+
     def perform_signals(self, candle: Candle) -> None:
         limit_orders: Dict[str, List[LimitOrderRequest]] = {}
         market_orders: Dict[str, List[MarketOrderRequest]] = {}
@@ -67,10 +72,7 @@ class Trader:
                 rule = algorithm.risk_management.createRule(buy=True if decision == 'BUY' else False)
 
                 self.active_rules.append(rule)
-                limit_order = rule.enter_order(candle)
-                assert limit_order is not None
-
-                __add_order(limit_order, limit_orders)
+                self.perform_rule(rule, candle)
 
         #  Обрабатываем все открытые сделки
         for rule in self.active_rules:
@@ -84,6 +86,7 @@ class Trader:
 
         self.active_rules = list(filter(lambda order_item: not order_item.closed, self.active_rules))
 
+        #  Мержим все рыночные заявки
         for market_orders_id in market_orders:
             if len(market_orders[market_orders_id]) > 1:
                 buy_reduced, volume_reduced = market_orders[market_orders_id][0]
@@ -102,10 +105,11 @@ class Trader:
                 market_orders[market_orders_id] = [
                     MarketOrderRequest(id=market_orders_id, punct=punct, buy=buy_reduced, volume=volume_reduced)]
 
+            #  Для кажого инструмента теперь только одна рынояная заявка
             assert len(market_orders[market_orders_id]) == 1
-
             self.exchange.market_order(market_orders[market_orders_id][0])
 
+        # Исполняем все лимитные заявки по очереди
         for limit_orders_list in limit_orders.values():
             for limit_order in limit_orders_list:
                 self.exchange.limit_order(limit_order)
