@@ -1,3 +1,5 @@
+import logging
+
 from victor.exchange.abstract import AbstractExchangeClient
 from victor.exchange.types import Candle, Timeframe, OrderState, LimitOrderRequest, MarketOrderRequest
 from typing import Callable
@@ -90,7 +92,11 @@ class FinamExchangeTestClient(AbstractExchangeClient):
         return self.__place_new_order(p, v * sign)
 
     def cancel_order(self, order_id: str):
-        raise NotImplementedError()
+        if order_id not in self.active_orders:
+            logging.error(f'Order id ({order_id}) is not in active orders list!')
+            return
+
+        del self.active_orders[order_id]
 
     def update(self, candle: Candle):
         to_delete = []

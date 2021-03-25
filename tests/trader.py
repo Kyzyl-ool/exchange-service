@@ -6,7 +6,7 @@ from tests.environments.trader import TraderEnvironment
 from victor.config import TEST_INSTRUMENT_ID
 from victor.exchange.types import Candle, Timeframe
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 
 np.random.seed(42)
 
@@ -35,6 +35,9 @@ class TraderTest(unittest.TestCase, TraderEnvironment):
             order = rule.exit_force()
             self.exchange.market_order(order)
 
-        logging.info(f'Финансовый результат по portfolio: {self.trader.exchange.portfolio.result()}')
+        logging.info(
+            f'Финансовый результат по portfolio: {self.trader.exchange.portfolio.result()}, комиссия: ({self.trader.exchange.portfolio.getComission()})')
         logging.info(
             f'Финансовый результат по exchange: {self.trader.exchange.financial_result(self.exchange.last_candle)}')
+
+        self.assertEqual(len(self.exchange.orders), len(self.exchange.portfolio.log))

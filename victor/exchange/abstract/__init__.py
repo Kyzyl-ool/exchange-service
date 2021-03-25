@@ -30,7 +30,7 @@ class AbstractExchangeClient:
     def update(self, candle: Candle) -> None:
         raise NotImplementedError()
 
-    def financial_result(self, candle: Candle) -> float:
+    def financial_result(self, candle: Candle) -> (float, float):
         result = 0
         result_volume = 0
         comission = 0
@@ -49,4 +49,4 @@ class AbstractExchangeClient:
 
         assert result_volume == 0
 
-        return result - comission
+        return result - comission, comission
