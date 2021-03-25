@@ -2,7 +2,7 @@
 Все типы, относящиеся к биржевому клиенту
 """
 import enum
-from typing import TypedDict, Optional
+from typing import TypedDict, Optional, Dict
 
 
 class Candle(TypedDict):
@@ -55,6 +55,14 @@ class OrderRequest(Instrument):
 
 class LimitOrderRequest(OrderRequest):
     price: float
+
+
+def is_limit_order_request(value: Dict):
+    return 'price' in value and 'id' in value and 'buy' in value
+
+
+def is_market_order_request(value):
+    return 'price' not in value and 'id' in value and 'buy' in value
 
 
 class MarketOrderRequest(OrderRequest):

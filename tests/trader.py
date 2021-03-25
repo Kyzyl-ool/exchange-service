@@ -28,5 +28,14 @@ class TraderTest(unittest.TestCase, TraderEnvironment):
         self.assertGreater(rsi_max, 50)
         self.assertLess(rsi_min, 50)
 
+        print(self.trader.active_rules)
+        for rule in self.trader.active_rules:
+            order = rule.exit_force()
+            self.exchange.market_order(order)
+
+        print(self.trader.exchange.portfolio.log)
+        print(self.trader.exchange.portfolio.result())
+        print(self.trader.exchange.portfolio.log)
+
 
 

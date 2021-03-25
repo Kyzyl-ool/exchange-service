@@ -13,8 +13,7 @@ class Rule:
     instrument: Instrument
     buy: bool
 
-    def __init__(self, p0: float, v0: float, instrument: Instrument, buy: bool):
-        self.p0 = p0
+    def __init__(self, v0: float, instrument: Instrument, buy: bool):
         self.v0 = v0
         self.instrument = instrument
         self.opened = False
@@ -24,10 +23,8 @@ class Rule:
     def exit_order(self, candle: Candle) -> Union[LimitOrderRequest, MarketOrderRequest]:
         raise NotImplementedError('Необходимо унаследовать этот класс и реализовать этот метод')
 
-    def enter_order(self):
-        if self.opened:
-            return None
-
+    def enter_order(self, candle: Candle) -> LimitOrderRequest:
+        assert not self.opened
         self.opened = True
 
         return LimitOrderRequest(
@@ -35,8 +32,11 @@ class Rule:
             punct=self.instrument['punct'],
             buy=self.buy,
             id=self.instrument['id'],
-            price=self.p0
+            price=candle['close']
         )
+
+    def exit_force(self):
+        raise NotImplementedError('Необходимо унаследовать этот класс и реализовать этот метод')
 
 
 class RiskManagement(Generic[RuleType]):
@@ -47,5 +47,5 @@ class RiskManagement(Generic[RuleType]):
         self.v0 = v0
         self.instrument = instrument
 
-    def createRule(self, p0: float, buy: bool) -> RuleType:
-        return RuleType(p0=p0, v0=self.v0)
+    def createRule(self, buy: bool) -> RuleType:
+        return RuleType(v0=self.v0)

@@ -2,7 +2,8 @@ from typing import Dict, List, Union
 
 from victor.algorithm import Algorithm
 from victor.exchange.abstract import AbstractExchangeClient
-from victor.exchange.types import Candle, MarketOrderRequest, LimitOrderRequest, Order
+from victor.exchange.types import Candle, MarketOrderRequest, LimitOrderRequest, is_limit_order_request, \
+    is_market_order_request
 from victor.generators import GeneratorFamily, Generator
 from victor.risk_management import Rule
 
@@ -21,13 +22,15 @@ class Trader:
     algorithms: Dict[str, Algorithm]
     exchange: AbstractExchangeClient
     active_rules: List[Rule]
+    max_orders: float
 
     def __init__(self, generator_family: GeneratorFamily, algorithms: List[Algorithm],
-                 exchange: AbstractExchangeClient):
+                 exchange: AbstractExchangeClient, max_orders=1):
         assert len(generator_family.generator_families) > 0
         self.__generators = {}
         self.algorithms = {}
         self.active_rules = []
+        self.max_orders = max_orders
 
         self.generator_family = generator_family
         self.exchange = exchange
@@ -47,28 +50,37 @@ class Trader:
         limit_orders: Dict[str, List[LimitOrderRequest]] = {}
         market_orders: Dict[str, List[MarketOrderRequest]] = {}
 
+        def __check_orders(key: str,
+                           orders: Union[Dict[str, List[LimitOrderRequest]], Dict[str, List[MarketOrderRequest]]]):
+            if key not in orders:
+                orders[key] = []
+
+        def __add_order(order: Union[LimitOrderRequest, MarketOrderRequest],
+                        orders: Union[Dict[str, List[LimitOrderRequest]], Dict[str, List[MarketOrderRequest]]]):
+            __check_orders(order['id'], orders)
+            orders[order['id']].append(order)
+
+        #  Собираем сделки по всем алгоритмам
         for algorithm in self.algorithms.values():
             decision = algorithm.determine()
-            if decision is not None:
-                p0 = candle['close']
-                rule = algorithm.risk_management.createRule(p0=p0, buy=True if decision == 'BUY' else False)
+            if len(self.active_rules) <= self.max_orders and decision is not None:
+                rule = algorithm.risk_management.createRule(buy=True if decision == 'BUY' else False)
 
                 self.active_rules.append(rule)
-                limit_order = rule.enter_order()
+                limit_order = rule.enter_order(candle)
                 assert limit_order is not None
 
-                if limit_order['id'] not in limit_orders:
-                    limit_orders[limit_order['id']] = []
+                __add_order(limit_order, limit_orders)
 
-                limit_orders[limit_order['id']].append(limit_order)
-
+        #  Обрабатываем все открытые сделки
         for rule in self.active_rules:
             order = rule.exit_order(candle)
 
-            if order is LimitOrderRequest:
-                limit_orders[order['id']].append(order)
-            elif order is MarketOrderRequest:
-                market_orders[order['id']].append(order)
+            if order is not None:
+                if is_limit_order_request(order):
+                    __add_order(order, limit_orders)
+                elif is_market_order_request(order):
+                    __add_order(order, market_orders)
 
         self.active_rules = list(filter(lambda order_item: not order_item.closed, self.active_rules))
 
