@@ -1,11 +1,11 @@
+import logging
 import unittest
 
 from tests.environments.trader import TraderEnvironment
 from victor.config import TEST_INSTRUMENT_ID
 from victor.exchange.types import Candle, Timeframe
 
-LOWER_BOUND = 10
-UPPER_BOUND = 90
+logging.basicConfig(level=logging.INFO)
 
 
 class TraderTest(unittest.TestCase, TraderEnvironment):
@@ -28,14 +28,11 @@ class TraderTest(unittest.TestCase, TraderEnvironment):
         self.assertGreater(rsi_max, 50)
         self.assertLess(rsi_min, 50)
 
-        print(self.trader.active_rules)
         for rule in self.trader.active_rules:
             order = rule.exit_force()
             self.exchange.market_order(order)
 
-        print(self.trader.exchange.portfolio.log)
-        print(self.trader.exchange.portfolio.result())
-        print(self.trader.exchange.portfolio.log)
+        logging.info(f'Финансовый результат: {self.trader.exchange.portfolio.result()}')
 
 
 

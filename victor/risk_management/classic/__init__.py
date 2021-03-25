@@ -1,3 +1,4 @@
+import logging
 from typing import Union
 
 from victor.exchange.types import Candle, LimitOrderRequest, MarketOrderRequest, Instrument
@@ -16,17 +17,20 @@ class ClassicRule(Rule):
         stop_loss, take_profit – в пунктах
         """
         super().__init__(**kwargs)
-        self.stop_loss_punct = stop_loss
-        self.take_profit_punct = take_profit
+        self.stop_loss_punct = stop_loss * self.instrument['punct']
+        self.take_profit_punct = take_profit * self.instrument['punct']
 
     def exit_order(self, candle: Candle) -> Union[LimitOrderRequest, MarketOrderRequest, None]:
         high = candle['high']
         low = candle['low']
+        close = candle['close']
 
         if self.opened:
             if self.buy:
                 if high > self.take_profit or low < self.stop_loss:
                     self.closed = True
+                    logging.info(f'{self.p0} -> {close} (long)')
+
                     return MarketOrderRequest(
                         volume=self.v0,
                         punct=self.instrument['punct'],
@@ -36,6 +40,8 @@ class ClassicRule(Rule):
             else:
                 if low < self.take_profit or high > self.stop_loss:
                     self.closed = True
+                    logging.info(f'{self.p0} -> {close} (short)')
+
                     return MarketOrderRequest(
                         volume=self.v0,
                         punct=self.instrument['punct'],
@@ -47,6 +53,9 @@ class ClassicRule(Rule):
 
     def exit_force(self):
         self.closed = True
+
+        logging.info(f'{self.p0} -> ? (force exit)')
+
         return MarketOrderRequest(
             volume=self.v0,
             punct=self.instrument['punct'],
@@ -57,6 +66,7 @@ class ClassicRule(Rule):
     def enter_order(self, candle: Candle) -> LimitOrderRequest:
         p0 = candle['close']
         buy = self.buy
+        self.p0 = p0
 
         self.stop_loss = p0 - self.stop_loss_punct if buy else p0 + self.stop_loss_punct
         self.take_profit = p0 + self.take_profit_punct if buy else p0 - self.take_profit_punct
