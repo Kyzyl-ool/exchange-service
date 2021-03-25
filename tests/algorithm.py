@@ -1,29 +1,20 @@
 import unittest
 
-from tests.environments.RSI import RSIEnvironment
+from tests.environments.algorithm import RSIAlgorithmEnvironment
 from victor.exchange.finam_test import FinamExchangeTestClient
 from victor.exchange.types import Timeframe, Candle
 from victor.generators import GeneratorSet
 from victor.algorithm.momentum import RSIProbabilityAlgorithm
 
-N = 14
-TEST_INSTRUMENT_ID = '../data/TATN_210101_210131.csv'
-PUNCT = 0.1
 
-LOWER_BOUND = 10
-UPPER_BOUND = 90
-
-
-class RSIProbabilityAlgorithmTest(unittest.TestCase, RSIEnvironment):
+class RSIProbabilityAlgorithmTest(unittest.TestCase, RSIAlgorithmEnvironment):
     algorithm: RSIProbabilityAlgorithm
     generator_set: GeneratorSet
     exchange: FinamExchangeTestClient
 
     def setUp(self) -> None:
-        RSIEnvironment.setUp(self)
+        RSIAlgorithmEnvironment.__init__(self)
 
-        self.generator_set = GeneratorSet([self.rsi], "Only RSI")
-        self.algorithm = RSIProbabilityAlgorithm(self.generator_set, LOWER_BOUND, UPPER_BOUND)
         self.exchange = FinamExchangeTestClient()
 
     def test_probability(self):
@@ -32,12 +23,12 @@ class RSIProbabilityAlgorithmTest(unittest.TestCase, RSIEnvironment):
             p = self.algorithm.probability()
             rsi = self.rsi.value()
 
-            if rsi < LOWER_BOUND:
+            if rsi < self.algorithm.lower_bound:
                 self.assertEqual(p, 1)
-            elif rsi > UPPER_BOUND:
+            elif rsi > self.algorithm.upper_bound:
                 self.assertEqual(p, -1)
             else:
                 self.assertGreaterEqual(p, -1)
                 self.assertLessEqual(p, 1)
 
-        self.exchange.ohlc_subscribe(TEST_INSTRUMENT_ID, Timeframe.M1, handler)
+        self.exchange.ohlc_subscribe(self.algorithm.instrument['id'], Timeframe.M1, handler)

@@ -1,3 +1,4 @@
+from tests.environments.historic_data import HistoricData
 from victor.exchange.types import Candle
 from victor.generators.generator.technical_indicators.average import EMA
 from victor.generators.generator.technical_indicators.momentum import RSI, RS
@@ -5,8 +6,7 @@ from victor.generators.generator.technical_indicators.price import U, D
 
 N = 14
 
-
-class RSIEnvironment:
+class RSIEnvironment(HistoricData):
     rsi: RSI
     rs: RS
     ema_u: EMA
@@ -14,7 +14,9 @@ class RSIEnvironment:
     u: U
     d: D
 
-    def setUp(self) -> None:
+    def __init__(self):
+        HistoricData.__init__(self)
+
         self.u = U()
         self.d = D()
 

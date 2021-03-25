@@ -2,7 +2,7 @@
 Все типы, относящиеся к биржевому клиенту
 """
 import enum
-from typing import TypedDict, Optional, Union
+from typing import TypedDict, Optional
 
 
 class Candle(TypedDict):

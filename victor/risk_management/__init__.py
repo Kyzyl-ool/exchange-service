@@ -22,5 +22,5 @@ class RiskManagement(Generic[RuleType]):
         pass
 
     @staticmethod
-    def createRule(p0: float, v0: float):
+    def createRule(p0: float, v0: float, buy: bool) -> RuleType:
         return RuleType(p0=p0, v0=v0)

@@ -1,4 +1,3 @@
-from victor.generators import GeneratorSet
 from victor.algorithm import ProbabilityAlgorithm
 
 
@@ -11,10 +10,10 @@ class RSIProbabilityAlgorithm(ProbabilityAlgorithm):
     upper_bound: float
     lower_bound: float
 
-    def __init__(self, generator_set: GeneratorSet, lower_bound: float, upper_bound: float):
-        super().__init__(generator_set)
+    def __init__(self, lower_bound: float, upper_bound: float, **kwargs):
+        ProbabilityAlgorithm.__init__(self, **kwargs)
 
-        assert generator_set.generators['RSI'] is not None
+        assert self.generator_set.generators['RSI'] is not None
 
         self.upper_bound = upper_bound
         self.lower_bound = lower_bound

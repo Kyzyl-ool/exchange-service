@@ -1,6 +1,7 @@
 from typing import Union
 import numpy as np
 
+from victor.exchange.types import Instrument
 from victor.generators import GeneratorSet
 from victor.risk_management import RiskManagement
 
@@ -11,11 +12,13 @@ class Algorithm:
     name: str
     generator_set: GeneratorSet
     risk_management: RiskManagement
+    instrument: Instrument
 
-    def __init__(self, generator_set: GeneratorSet, name: str, risk_management: RiskManagement):
+    def __init__(self, generator_set: GeneratorSet, name: str, risk_management: RiskManagement, instrument: Instrument):
         self.generator_set = generator_set
         self.name = name
         self.risk_management = risk_management
+        self.instrument = instrument
 
     def determine(self) -> Union[OperationType, None]:
         raise NotImplementedError('Необходимо отнаследоваться и реализовать этот метод')
