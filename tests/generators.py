@@ -14,7 +14,7 @@ class TechnicalIndicatorTest(unittest.TestCase, RSIEnvironment):
     exchange: FinamExchangeTestClient
 
     def setUp(self) -> None:
-        RSIEnvironment.setUp(self)
+        RSIEnvironment.__init__(self)
 
         self.exchange = FinamExchangeTestClient()
 

@@ -1,5 +1,5 @@
 from collections import deque
-from typing import Generic, TypeVar
+from typing import Generic, TypeVar, Union
 
 from victor.config import GENERATOR_MAX_DEQUE_LENGTH
 
@@ -20,6 +20,8 @@ class Generator(Generic[GeneratorType]):
     def next(self, value: GeneratorType):
         raise NotImplementedError('Попытка вызова не реализованного метода')
 
-    def value(self):
-        assert len(self.resultDeque) > 0
-        return self.resultDeque[-1]
+    def value(self) -> Union[GeneratorType, None]:
+        if len(self.resultDeque) > 0:
+            return self.resultDeque[-1]
+        else:
+            return None

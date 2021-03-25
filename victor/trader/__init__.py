@@ -17,6 +17,9 @@ class Trader:
 
     def __init__(self, generator_family: GeneratorFamily, exchange_service_host: str, algorithms: List[Algorithm]):
         assert len(generator_family.generator_families) > 0
+        self.__generators = {}
+        self.algorithms = {}
+        self.active_rules = []
 
         self.generator_family = generator_family
         # todo: нормально подключиться к биржевому сервису при помощи exchange_service_host

@@ -1,21 +1,19 @@
 import unittest
 
 from tests.environments.algorithm import RSIAlgorithmEnvironment
-from victor.exchange.finam_test import FinamExchangeTestClient
+from tests.environments.exchange import TestExchange
 from victor.exchange.types import Timeframe, Candle
 from victor.generators import GeneratorSet
 from victor.algorithm.momentum import RSIProbabilityAlgorithm
 
 
-class RSIProbabilityAlgorithmTest(unittest.TestCase, RSIAlgorithmEnvironment):
+class RSIProbabilityAlgorithmTest(unittest.TestCase, RSIAlgorithmEnvironment, TestExchange):
     algorithm: RSIProbabilityAlgorithm
     generator_set: GeneratorSet
-    exchange: FinamExchangeTestClient
 
     def setUp(self) -> None:
         RSIAlgorithmEnvironment.__init__(self)
-
-        self.exchange = FinamExchangeTestClient()
+        TestExchange.__init__(self)
 
     def test_probability(self):
         def handler(candle: Candle):

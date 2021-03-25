@@ -18,6 +18,13 @@ class RSI(TechnicalIndicator):
     def next(self, candle: Candle):
         rs = self.rs.value()
 
-        result = 100 - 100 / (1 + rs)
+        result = None
+
+        if rs is not None:
+            result = 100 - 100 / (1 + rs)
+        else:
+            result = 50
+
+        assert result is not None
 
         self.resultDeque.append(result)
