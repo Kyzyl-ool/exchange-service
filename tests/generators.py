@@ -5,9 +5,9 @@ from typing import List
 from tests.environments.RSI import RSIEnvironment
 from tests.environments.exchange import TestExchange
 from victor.config import GENERATOR_MAX_DEQUE_LENGTH
-from victor.generators import Generator
 from victor.exchange.types import Candle, Timeframe
 from victor.exchange.finam_test import FinamExchangeTestClient
+from victor.generators.generator import Generator
 from victor.generators.generator.candle.candle_aggregator import CandleAggregator
 
 import numpy as np

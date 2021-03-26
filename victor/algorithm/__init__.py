@@ -1,29 +1,28 @@
-from typing import Union, List
+from typing import Union
 import numpy as np
 
 from victor.exchange.types import Instrument
-from victor.generators import GeneratorSet, GeneralPool, Generator
+from victor.generators import GeneralPool
+from victor.generators.generator import Generator
 from victor.risk_management import RiskManagement
 
 OperationType = Union['BUY', 'SELL']
 
 
 class Algorithm:
-    general_pool: GeneralPool = GeneralPool()
+    general_pool: GeneralPool = GeneralPool.getInstance()
 
-    def __init__(self, name: str, risk_management: RiskManagement, instrument: Instrument,
-                 requirements: List[Generator]):
+    def __init__(self, name: str, risk_management: RiskManagement, instrument: Instrument):
         self.name = name
         self.risk_management = risk_management
         self.instrument = instrument
-        self.requirements = requirements
-
-        for generator in requirements:
-            if not self.general_pool.is_generator_exist(generator_id=generator.name, instrument=instrument):
-                self.general_pool.add_generator(generator_instance=generator, instrument=instrument)
 
     def determine(self) -> Union[OperationType, None]:
         raise NotImplementedError('Необходимо отнаследоваться и реализовать этот метод')
+
+    def add_dependency(self, generator: Generator):
+        if not self.general_pool.is_generator_exist(generator.name, self.instrument):
+            self.general_pool.add_generator(generator, self.instrument)
 
 
 class ProbabilityAlgorithm(Algorithm):

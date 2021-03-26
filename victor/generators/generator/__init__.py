@@ -12,7 +12,7 @@ GeneratorOutput = TypeVar('GeneratorOutput')
 
 
 class Generator(Generic[GeneratorInput, GeneratorOutput]):
-    general_pool: GeneralPool = GeneralPool()
+    general_pool: GeneralPool = GeneralPool.getInstance()
 
     def __init__(self, name: str, instrument: Instrument, limit=GENERATOR_MAX_DEQUE_LENGTH):
         self.name = name

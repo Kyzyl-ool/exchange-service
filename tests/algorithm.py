@@ -3,9 +3,11 @@ import unittest
 from tests.environments.algorithm import RSIAlgorithmEnvironment
 from tests.environments.exchange import TestExchange
 from victor.algorithm.momentum.breakout import BreakoutProbabilityAlgorithm
+from victor.config import TEST_INSTRUMENT
 from victor.exchange.types import Timeframe, Candle
-from victor.generators import GeneratorSet
 from victor.algorithm.momentum import RSIProbabilityAlgorithm
+from victor.generators.generator_set import GeneratorSet
+from victor.risk_management.classic import Classic
 
 
 class RSIProbabilityAlgorithmTest(unittest.TestCase, RSIAlgorithmEnvironment, TestExchange):
@@ -36,9 +38,10 @@ class RSIProbabilityAlgorithmTest(unittest.TestCase, RSIAlgorithmEnvironment, Te
 class BreakoutProbabilityAlgorithmTest(unittest.TestCase, TestExchange):
     def setUp(self) -> None:
         TestExchange.__init__(self)
-        self.algorithm = BreakoutProbabilityAlgorithm()
-        self.generator_set = GeneratorSet()
+
+        self.risk_management = Classic(stop_loss=30, take_profit=60, v0=1, instrument=TEST_INSTRUMENT)
+        self.algorithm = BreakoutProbabilityAlgorithm(risk_management=self.risk_management, instrument=TEST_INSTRUMENT,
+                                                      n=5, m=2)
 
     def test_name(self):
-
-        self.assertEqual(self.algorithm.name, 'breaout-algorithm')
+        self.assertEqual(self.algorithm.name, BreakoutProbabilityAlgorithm.make_name(TEST_INSTRUMENT, 5, 2))

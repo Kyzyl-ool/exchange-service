@@ -1,6 +1,6 @@
 from typing import List, Dict
 
-from victor.generators import GeneratorSet
+from victor.generators.generator_set import GeneratorSet
 
 
 class GeneratorFamily:

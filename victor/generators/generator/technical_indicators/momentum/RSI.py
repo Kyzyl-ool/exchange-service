@@ -4,12 +4,12 @@ from victor.generators.generator.technical_indicators import TechnicalIndicator
 from victor.generators.generator.technical_indicators.momentum import RS
 from victor.generators.generator.technical_indicators.momentum.RS import RS_NAME
 
-RSI_NAME = 'rsi'
-
 
 class RSI(TechnicalIndicator):
+    name = 'rsi'
+
     def __init__(self, punct: float, instrument: Instrument, limit: int, n: int):
-        TechnicalIndicator.__init__(self, punct, RSI_NAME, instrument, limit)
+        TechnicalIndicator.__init__(self, punct, RSI.name, instrument, limit)
 
         self.add_dependency(RS(punct, instrument, limit, n))
 

@@ -79,12 +79,12 @@ class Classic(RiskManagement[ClassicRule]):
     take_profit: float
     instrument: Instrument
 
-    def __init__(self, stop_loss: float, take_profit: float, **kwargs):
+    def __init__(self, stop_loss: float, take_profit: float, v0: float, instrument: Instrument):
         """
         stop_loss - в пунктах
         take_profit - в пунктах
         """
-        super().__init__(**kwargs)
+        RiskManagement.__init__(self, v0=v0, instrument=instrument)
         self.stop_loss = stop_loss
         self.take_profit = take_profit
 

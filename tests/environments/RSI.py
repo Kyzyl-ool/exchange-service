@@ -1,8 +1,9 @@
 from tests.environments.exchange import TestExchange
-from victor.generators import GeneratorFamily, GeneratorSet
 from victor.generators.generator.technical_indicators.average import EMA
 from victor.generators.generator.technical_indicators.momentum import RSI, RS
 from victor.generators.generator.technical_indicators.price import U, D
+from victor.generators.generator_family import GeneratorFamily
+from victor.generators.generator_set import GeneratorSet
 
 N = 14
 

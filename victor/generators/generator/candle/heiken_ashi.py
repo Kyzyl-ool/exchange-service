@@ -1,10 +1,12 @@
-from victor.exchange.types import Candle
-from victor.generators import Generator
+from victor.exchange.types import Candle, Instrument
+from victor.generators.generator import Generator
 
 
 class HeikenAshi(Generator[Candle, Candle]):
-    def __init__(self):
-        Generator.__init__(self, name='heiken-ashi', limit=None)
+    name = 'heiken-ashi'
+
+    def __init__(self, instrument: Instrument):
+        Generator.__init__(self, name=HeikenAshi.name, limit=None, instrument=instrument)
         self.open_prev = None
         self.close_prev = None
 

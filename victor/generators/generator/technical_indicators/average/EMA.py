@@ -2,8 +2,6 @@ from victor.exchange.types import Candle, Instrument
 
 from victor.generators.generator.technical_indicators import TechnicalIndicator
 
-EMA_BASE_NAME = 'ema'
-
 
 class EMA(TechnicalIndicator):
     N: int
@@ -11,7 +9,9 @@ class EMA(TechnicalIndicator):
 
     @staticmethod
     def make_name(target_generator_name: str, n: int) -> str:
-        return f'{EMA_BASE_NAME}({target_generator_name}, {n})'
+        __EMA_BASE_NAME = 'ema'
+
+        return f'{__EMA_BASE_NAME}({target_generator_name}, {n})'
 
     def __init__(self, n: int, target_generator_name: str, punct: float, instrument: Instrument, limit: int):
         """

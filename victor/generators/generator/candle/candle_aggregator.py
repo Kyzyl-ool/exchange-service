@@ -1,8 +1,8 @@
 import functools
 from typing import List
 
-from victor.exchange.types import Candle
-from victor.generators import Generator
+from victor.exchange.types import Candle, Instrument
+from victor.generators.generator import Generator
 
 
 class CandleAggregator(Generator[Candle, Candle]):
@@ -10,13 +10,18 @@ class CandleAggregator(Generator[Candle, Candle]):
     k: int
     buffer: List
 
-    def __init__(self, n: int):
+    def __init__(self, n: int, instrument: Instrument):
         assert (n > 0)
 
-        Generator.__init__(self, name=f'candle-aggregator({n})', limit=None)
+        Generator.__init__(self, name=self.make_name(instrument, n), limit=None, instrument=instrument)
         self.n = n
         self.k = 0
         self.buffer = []
+
+    @staticmethod
+    def make_name(instrument: Instrument, n: int):
+        instrument_id = instrument['id']
+        return f'candle-aggregator({instrument_id}, {n})'
 
     def __get_next(self, close, open, high, low, volume, time):
         if self.k == self.n:

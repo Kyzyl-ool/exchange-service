@@ -1,7 +1,7 @@
 from datetime import time
 
-from victor.exchange.types import Candle
-from victor.generators import Generator
+from victor.exchange.types import Candle, Instrument
+from victor.generators.generator import Generator
 
 
 def time_in_range(start, end, x) -> bool:
@@ -13,8 +13,10 @@ def time_in_range(start, end, x) -> bool:
 
 
 class TimeFilter(Generator[Candle, bool]):
-    def __init__(self, from_time: time, to_time: time):
-        Generator.__init__(self, name='time-filter')
+    name = 'time-filter'
+
+    def __init__(self, from_time: time, to_time: time, instrument: Instrument, limit: int):
+        Generator.__init__(self, name=TimeFilter.name, instrument=instrument, limit=limit)
         self.from_time = from_time
         self.to_time = to_time
 
