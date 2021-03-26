@@ -6,7 +6,7 @@ from victor.generators.generator.technical_indicators import TechnicalIndicator
 
 
 class BarRotationGenerator(TechnicalIndicator):
-    def __init__(self, short: bool, instrument: Instrument, limit: int):
+    def __init__(self, short: bool, instrument: Instrument, limit=None):
         TechnicalIndicator.__init__(self, name=BarRotationGenerator.make_name(instrument, short=short),
                                     instrument=instrument,
                                     limit=limit)

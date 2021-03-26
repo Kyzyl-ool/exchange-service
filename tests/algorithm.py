@@ -3,9 +3,11 @@ import unittest
 from tests.environments.exchange import TestExchange
 from victor.algorithm.momentum.bar_rotation import BarRotationAlgorithm
 from victor.algorithm.momentum.breakout import BreakoutProbabilityAlgorithm
-from victor.config import TEST_INSTRUMENT
+from victor.config import TEST_INSTRUMENT, TEST_INSTRUMENT_ID
 from victor.exchange.types import Timeframe, Candle
 from victor.algorithm.momentum import RSIProbabilityAlgorithm
+from victor.generators.generator.candle.heiken_ashi import HeikenAshi
+from victor.generators.generator.patterns.bar_rotation import BarRotationGenerator
 from victor.generators.generator.technical_indicators.momentum import RSI
 from victor.risk_management.classic import Classic
 
@@ -24,7 +26,7 @@ class RSIProbabilityAlgorithmTest(unittest.TestCase, TestExchange):
             self.exchange.update(candle)
 
             p = self.algorithm.probability()
-            rsi = self.algorithm.general_pool.get_generator(RSI.make_name(TEST_INSTRUMENT), TEST_INSTRUMENT).value()
+            rsi = self.algorithm.general_pool.get_generator(RSI.make_name(TEST_INSTRUMENT)).value()
 
             if rsi < self.algorithm.lower_bound:
                 self.assertEqual(p, 1)
@@ -63,13 +65,24 @@ class BarRotationAlgorithmTest(unittest.TestCase, TestExchange):
         self.risk_management = Classic(stop_loss=30, take_profit=60, v0=1, instrument=TEST_INSTRUMENT)
         self.algorithm = BarRotationAlgorithm(risk_management=self.risk_management, instrument=TEST_INSTRUMENT,
                                               short=False)
+        self.heiken_ashi = self.algorithm.general_pool.get_generator(HeikenAshi.make_name(TEST_INSTRUMENT))
+        self.bar_rotation = self.algorithm.general_pool.get_generator(BarRotationGenerator.make_name(TEST_INSTRUMENT, short=False))
 
     def test_name(self):
         self.assertEqual(self.algorithm.name, BarRotationAlgorithm.make_name(TEST_INSTRUMENT))
 
     def test_logic(self):
-        def handler(candle: Candle):
-            self.exchange.update(candle)
-            self.algorithm.general_pool.update_generators(candle)
+        TestExchange.__init__(self)
 
-        self.exchange.ohlc_subscribe(self.algorithm.instrument['id'], Timeframe.M1, handler)
+        def handler(candle: Candle):
+            self.algorithm.general_pool.update_generators(candle)
+            self.exchange.update(candle)
+
+            if len(self.heiken_ashi.resultDeque) > 2:
+                previous_sign = self.heiken_ashi.resultDeque[-2]['close'] - self.heiken_ashi.resultDeque[-2]['open']
+                current_sign = self.heiken_ashi.resultDeque[-1]['close'] - self.heiken_ashi.resultDeque[-1]['open']
+                bar_rotation_value = self.bar_rotation.value()
+                if bar_rotation_value > 0:
+                    self.assertTrue(previous_sign*current_sign <= 0)
+
+        self.exchange.ohlc_subscribe(TEST_INSTRUMENT_ID, Timeframe.M1, handler)

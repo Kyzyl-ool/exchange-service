@@ -3,7 +3,7 @@ from datetime import datetime, timedelta, time
 from typing import List
 
 from tests.environments.exchange import TestExchange
-from victor.config import GENERATOR_MAX_DEQUE_LENGTH
+from victor.config import GENERATOR_MAX_DEQUE_LENGTH, TEST_INSTRUMENT
 from victor.exchange.types import Candle, Timeframe
 from victor.exchange.finam_test import FinamExchangeTestClient
 from victor.generators.generator import Generator
@@ -13,36 +13,20 @@ import numpy as np
 
 from victor.generators.generator.candle.heiken_ashi import HeikenAshi
 from victor.generators.generator.filters.time_filter import TimeFilter
-from victor.generators.generator.patterns.bar_rotation import BarRotation
+from victor.generators.generator.patterns.bar_rotation import BarRotationGenerator
 from victor.generators.generator.patterns.breakout import Breakout
 
 TEST_INSTRUMENT_ID = '../data/TATN_210101_210131.csv'
 
 
-class TechnicalIndicatorTest(unittest.TestCase, RSIEnvironment):
+class TechnicalIndicatorTest(unittest.TestCase):
     exchange: FinamExchangeTestClient
 
     def setUp(self) -> None:
-        RSIEnvironment.__init__(self)
-
         self.exchange = FinamExchangeTestClient()
 
-    def test_rsi(self):
-        def handler(candle: Candle):
-            self.d.next(candle)
-            self.u.next(candle)
-            self.ema_u.next(candle)
-            self.ema_d.next(candle)
-            self.rs.next(candle)
-            self.rsi.next(candle)
-
-        self.exchange.ohlc_subscribe(TEST_INSTRUMENT_ID, Timeframe.M1, handler)
-
-        self.assertEqual(len(self.rsi.resultDeque), GENERATOR_MAX_DEQUE_LENGTH)
-        self.assertTrue(all(map(lambda x: 0 <= x <= 100, self.rsi.resultDeque)))
-
     def test_not_implemented_methods(self):
-        abstract_generator = Generator[float](name='some generator')
+        abstract_generator = Generator[float, float](name='some generator', instrument=TEST_INSTRUMENT)
 
         self.assertRaises(NotImplementedError, abstract_generator.next, 1)
 
@@ -81,15 +65,13 @@ class CandleAggregatorTest(unittest.TestCase):
 
 
 class BreakoutTest(unittest.TestCase, TestExchange):
-    breakout: Breakout
-    candle_aggregator: CandleAggregator
-
     def setUp(self) -> None:
-        self.candle_aggregator = CandleAggregator(5)
-        self.breakout = Breakout(n=5, m=2, punct=0.01, candle_aggregator=self.candle_aggregator)
+        TestExchange.__init__(self)
+        self.candle_aggregator = CandleAggregator(instrument=TEST_INSTRUMENT, n=5)
+        self.breakout = Breakout(instrument=TEST_INSTRUMENT, n=5, m=2)
 
     def test_breakout_name(self):
-        self.assertEqual(self.breakout.name, 'breakout-up')
+        self.assertEqual(self.breakout.name, Breakout.make_name(self.instrument, n=5, m=2))
 
     def test_breakout_next(self):
         TestExchange.__init__(self)
@@ -107,30 +89,6 @@ class BreakoutTest(unittest.TestCase, TestExchange):
         for level in self.breakout.levels:
             i = level['i']
             self.assertTrue(abs(level['time'] - self.exchange.df.iloc[i]['<DATETIME>']), timedelta(seconds=1))
-
-
-class BarRotationTest(unittest.TestCase, TestExchange):
-    def setUp(self) -> None:
-        self.heiken_ashi = HeikenAshi()
-        self.bar_rotation = BarRotation(punct=0.01, short=False, heiken_ashi_generator=self.heiken_ashi)
-
-    def test_name(self):
-        self.assertEqual(self.bar_rotation.name, 'bar-rotation')
-
-    def test_logic(self):
-        TestExchange.__init__(self)
-
-        def handler(candle: Candle):
-            self.heiken_ashi.next(candle)
-            self.bar_rotation.next(candle)
-            if len(self.heiken_ashi.resultDeque) > 2:
-                previous_sign = self.heiken_ashi.resultDeque[-2]['close'] - self.heiken_ashi.resultDeque[-2]['open']
-                current_sign = self.heiken_ashi.resultDeque[-1]['close'] - self.heiken_ashi.resultDeque[-1]['open']
-                bar_rotation_value = self.bar_rotation.value()
-                if bar_rotation_value > 0:
-                    self.assertTrue(previous_sign*current_sign <= 0)
-
-        self.exchange.ohlc_subscribe(TEST_INSTRUMENT_ID, Timeframe.M1, handler)
 
 
 class TimeFilterTest(unittest.TestCase, TestExchange):
