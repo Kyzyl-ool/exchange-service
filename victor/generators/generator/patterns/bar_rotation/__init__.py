@@ -7,7 +7,8 @@ from victor.generators.generator.technical_indicators import TechnicalIndicator
 
 class BarRotationGenerator(TechnicalIndicator):
     def __init__(self, short: bool, instrument: Instrument, limit: int):
-        TechnicalIndicator.__init__(self, name=BarRotationGenerator.make_name(instrument, short=short), instrument=instrument,
+        TechnicalIndicator.__init__(self, name=BarRotationGenerator.make_name(instrument, short=short),
+                                    instrument=instrument,
                                     limit=limit)
 
         self._add_dependency(HeikenAshi(instrument))

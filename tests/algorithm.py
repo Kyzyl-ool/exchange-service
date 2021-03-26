@@ -1,6 +1,7 @@
 import unittest
 
 from tests.environments.exchange import TestExchange
+from victor.algorithm.momentum.bar_rotation import BarRotationAlgorithm
 from victor.algorithm.momentum.breakout import BreakoutProbabilityAlgorithm
 from victor.config import TEST_INSTRUMENT
 from victor.exchange.types import Timeframe, Candle
@@ -46,6 +47,25 @@ class BreakoutProbabilityAlgorithmTest(unittest.TestCase, TestExchange):
 
     def test_name(self):
         self.assertEqual(self.algorithm.name, BreakoutProbabilityAlgorithm.make_name(TEST_INSTRUMENT, 5, 2))
+
+    def test_logic(self):
+        def handler(candle: Candle):
+            self.exchange.update(candle)
+            self.algorithm.general_pool.update_generators(candle)
+
+        self.exchange.ohlc_subscribe(self.algorithm.instrument['id'], Timeframe.M1, handler)
+
+
+class BarRotationAlgorithmTest(unittest.TestCase, TestExchange):
+    def setUp(self) -> None:
+        TestExchange.__init__(self)
+
+        self.risk_management = Classic(stop_loss=30, take_profit=60, v0=1, instrument=TEST_INSTRUMENT)
+        self.algorithm = BarRotationAlgorithm(risk_management=self.risk_management, instrument=TEST_INSTRUMENT,
+                                              short=False)
+
+    def test_name(self):
+        self.assertEqual(self.algorithm.name, BarRotationAlgorithm.make_name(TEST_INSTRUMENT))
 
     def test_logic(self):
         def handler(candle: Candle):
