@@ -1,8 +1,10 @@
+import logging
+from datetime import datetime, timedelta
 from decimal import Decimal
 
 from victor.config import TINKOFF_SANDBOX_TOKEN
 from victor.exchange.abstract import AbstractExchangeClient
-from victor.exchange.types import Timeframe, Candle, LimitOrderRequest, MarketOrderRequest
+from victor.exchange.types import Timeframe, Candle, LimitOrderRequest, MarketOrderRequest, Order, OrderState
 from typing import Callable, Dict, List
 import tinvest as ti
 import asyncio
@@ -33,13 +35,25 @@ def candle_mapping(ti_candle: ti.Candle) -> Candle:
 class TinkoffExchangeClient(AbstractExchangeClient):
     streaming: ti.Streaming
     subscried_candles: Dict[str, Timeframe]
-    async_client: ti.AsyncClient = ti.AsyncClient(os.environ[TINKOFF_SANDBOX_TOKEN], use_sandbox=True)
+    async_client: ti.AsyncClient
     accounts: List
+    streaming: ti.Streaming
 
     def __init__(self):
         self.subscried_candles = {}
-        # result = await self.async_client.get_accounts()
-        # self.accounts = result.payload.accounts
+
+    async def init(self):
+        self.async_client = ti.AsyncClient(os.environ[TINKOFF_SANDBOX_TOKEN], use_sandbox=True)
+        self.streaming = ti.Streaming(os.environ[TINKOFF_SANDBOX_TOKEN])
+        await self.streaming.start()
+
+        result = await self.async_client.get_accounts()
+        self.accounts = result.payload.accounts
+        body = ti.SandboxSetCurrencyBalanceRequest(
+            balance=100000,
+            currency='RUB',
+        )
+        await self.async_client.set_sandbox_currencies_balance(body)
 
     async def ohlc_subscribe(self, instrument_id: str, timeframe: Timeframe, handler: Callable[[Candle], None]):
         """
@@ -49,13 +63,11 @@ class TinkoffExchangeClient(AbstractExchangeClient):
         :param handler: обработчик получения новой свечи
         :return:
         """
-        async with ti.Streaming(os.environ[TINKOFF_SANDBOX_TOKEN]) as streaming:
-            self.streaming = streaming
-            assert instrument_id not in self.subscried_candles
-            await streaming.candle.subscribe(instrument_id, self.map_timeframe(timeframe))
-            async for event in streaming:
-                handler(candle_mapping(event.payload))
-        pass
+        streaming = self.streaming
+        assert instrument_id not in self.subscried_candles
+        await streaming.candle.subscribe(instrument_id, self.map_timeframe(timeframe))
+        async for event in streaming:
+            handler(candle_mapping(event.payload))
 
     @staticmethod
     def map_timeframe(timeframe: Timeframe) -> ti.CandleResolution:
@@ -70,8 +82,14 @@ class TinkoffExchangeClient(AbstractExchangeClient):
         )
 
         result = await self.async_client.post_orders_limit_order(order['id'], body)
+        order_id = result.payload.order_id
+        self.orders[order_id] = OrderState(
+            price=order['price'] if order['buy'] else -order['price'],
+            initial_volume=order['volume'],
+            realized_volume=float(result.payload.executed_lots)
+        )
 
-        return result.payload.order_id
+        return order_id
 
     async def market_order(self, order: MarketOrderRequest) -> str:
         body = ti.MarketOrderRequest(
@@ -81,15 +99,35 @@ class TinkoffExchangeClient(AbstractExchangeClient):
 
         result = await self.async_client.post_orders_market_order(order['id'], body)
 
-        return result.payload.order_id
+        order_id = result.payload.order_id
+
+        executed_order = []
+        while len(executed_order) == 0:
+            await asyncio.sleep(5)
+            logging.debug('Getting operations...')
+            orders = await self.async_client.get_operations(datetime.now() - timedelta(minutes=30), datetime.now(),
+                                                            order['id'])
+            logging.debug('Got operations:', orders)
+            executed_order = [x for x in orders.payload.operations if x.id == order_id]
+
+        self.orders[order_id] = OrderState(
+            price=float(executed_order[0].price),
+            initial_volume=order['volume'],
+            realized_volume=float(result.payload.executed_lots)
+        )
+
+        return order_id
 
     async def cancel_order(self, order_id: str):
         await self.async_client.post_orders_cancel(order_id)
 
-    def update(self, candle: Candle) -> None:
+    async def update(self, candle: Candle) -> None:
         pass
 
-    def close_connections(self):
+    async def close_connections(self):
         for figi in self.subscried_candles:
             timeframe = self.subscried_candles[figi]
             self.streaming.candle.unsubscribe(figi, self.map_timeframe(timeframe))
+
+        await self.async_client.close()
+        await self.streaming.stop()
