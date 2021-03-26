@@ -51,7 +51,7 @@ class ClassicRule(Rule):
 
         return None
 
-    def exit_force(self):
+    def exit_force(self) -> MarketOrderRequest:
         self.closed = True
 
         logging.debug(f'[{self.order_id}] {self.p0} -> ? (force exit)')

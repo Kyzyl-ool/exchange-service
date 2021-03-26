@@ -24,15 +24,10 @@ class RSIProbabilityAlgorithm(ProbabilityAlgorithm):
 
         self._add_dependency(RSI(instrument, GENERATOR_MAX_DEQUE_LENGTH, rsi_n))
 
-    @staticmethod
-    def make_name(instrument: Instrument):
-        instrument_id = instrument['id']
-        return f'rsi-algorithm({instrument_id})'
-
     def _probability(self) -> float:
         k = 2 / (self.lower_bound - self.upper_bound)
         b = (self.lower_bound + self.upper_bound) / (self.upper_bound - self.lower_bound)
-        x = self.general_pool.get_generator(RSI.make_name(self.instrument), self.instrument).value()
+        x = self.general_pool.get_generator(RSI.make_name(self.instrument)).value()
 
         if x <= self.lower_bound:
             return 1

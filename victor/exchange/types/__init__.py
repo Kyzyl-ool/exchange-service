@@ -19,6 +19,7 @@ class OrderState(TypedDict):
     price: float
     initial_volume: float
     realized_volume: float
+    time: datetime
 
 
 class Instrument(TypedDict):

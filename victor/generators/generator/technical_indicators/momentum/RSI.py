@@ -11,7 +11,7 @@ class RSI(TechnicalIndicator):
         self._add_dependency(RS(instrument, limit, n))
 
     def next(self, candle: Candle):
-        rs_value = self.general_pool.get_generator(RS.make_name(self.instrument), self.instrument).value()
+        rs_value = self.general_pool.get_generator(RS.make_name(self.instrument)).value()
 
         if rs_value is not None:
             result = 100 - 100 / (1 + rs_value)

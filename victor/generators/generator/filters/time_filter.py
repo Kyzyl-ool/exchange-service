@@ -13,10 +13,8 @@ def time_in_range(start, end, x) -> bool:
 
 
 class TimeFilter(Generator[Candle, bool]):
-    name = 'time-filter'
-
     def __init__(self, from_time: time, to_time: time, instrument: Instrument, limit: int):
-        Generator.__init__(self, name=TimeFilter.name, instrument=instrument, limit=limit)
+        Generator.__init__(self, name=TimeFilter.make_name(instrument), instrument=instrument, limit=limit)
         self.from_time = from_time
         self.to_time = to_time
 

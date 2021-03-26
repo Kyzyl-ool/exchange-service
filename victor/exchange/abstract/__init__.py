@@ -39,13 +39,13 @@ class AbstractExchangeClient:
             amount = order['price']*order['realized_volume']
             result -= amount
             result_volume += order['realized_volume']
-            comission += amount*self.fixed_comission
+            comission += abs(amount)*self.fixed_comission
 
         for order in self.active_orders.values():
-            amount = candle['close']*order['initial_volume']
+            amount = candle['close']*order['realized_volume']
             result -= amount
-            result_volume += order['initial_volume']
-            comission += amount*self.fixed_comission
+            result_volume += order['realized_volume']
+            comission += abs(amount)*self.fixed_comission
 
         assert result_volume == 0
 

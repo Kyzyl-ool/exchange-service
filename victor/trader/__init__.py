@@ -1,50 +1,32 @@
-from typing import Dict, List, Union
+from typing import Dict, List, Union, Type
 
 from victor.algorithm import Algorithm
 from victor.exchange.abstract import AbstractExchangeClient
 from victor.exchange.types import Candle, MarketOrderRequest, LimitOrderRequest, is_limit_order_request, \
-    is_market_order_request
-from victor.generators import GeneratorFamily, Generator
+    is_market_order_request, Instrument
+from victor.generators import GeneralPool
 from victor.risk_management import Rule
 
 
-def add_dependencies_recursively(generator: Generator, generators_dict: Dict[str, Generator]):
-    if len(generator.dependencies) > 0:
-        for dependency_generator in generator.dependencies.values():
-            add_dependencies_recursively(dependency_generator, generators_dict)
-            generators_dict[dependency_generator.name] = dependency_generator
-    generators_dict[generator.name] = generator
-
-
 class Trader:
-    generator_family: GeneratorFamily
-    __generators: Dict[str, Generator]
+    general_pool: GeneralPool = GeneralPool.getInstance()
     algorithms: Dict[str, Algorithm]
     exchange: AbstractExchangeClient
     active_rules: List[Rule]
     max_orders: float
 
-    def __init__(self, generator_family: GeneratorFamily, algorithms: List[Algorithm],
+    def __init__(self, algorithms: List[Algorithm],
                  exchange: AbstractExchangeClient, max_orders=1):
-        assert len(generator_family.generator_families) > 0
-        self.__generators = {}
         self.algorithms = {}
         self.active_rules = []
         self.max_orders = max_orders
-
-        self.generator_family = generator_family
         self.exchange = exchange
-
-        for generator_set in generator_family.generator_families.values():
-            for generator in generator_set.generators.values():
-                add_dependencies_recursively(generator, self.__generators)
 
         for algorithm in algorithms:
             self.algorithms[algorithm.name] = algorithm
 
-    def update(self, candle: Candle) -> None:
-        for generator in self.__generators.values():
-            generator.next(candle)
+    def get_algorithm(self, algorithm: Type[Algorithm], instrument: Instrument):
+        return self.algorithms[algorithm.make_name(instrument)]
 
     def perform_rule(self, rule: Rule, candle: Candle) -> None:
         limit_order = rule.enter_order(candle)

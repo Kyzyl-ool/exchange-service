@@ -19,7 +19,7 @@ class EMA(TechnicalIndicator):
         self.target_generator_name = target_generator_name
 
     def next(self, candle: Candle):
-        current_value = self.general_pool.get_generator(self.target_generator_name, self.instrument).value()
+        current_value = self.general_pool.get_generator(self.target_generator_name).value()
         previous_value = self.resultDeque[-1] if len(self.resultDeque) > 0 else 0
 
         k = 2 / (self.N + 1)
