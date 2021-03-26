@@ -1,5 +1,5 @@
 import unittest
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, time
 from typing import List
 
 from tests.environments.RSI import RSIEnvironment
@@ -13,6 +13,7 @@ from victor.generators.generator.candle.candle_aggregator import CandleAggregato
 import numpy as np
 
 from victor.generators.generator.candle.heiken_ashi import HeikenAshi
+from victor.generators.generator.filters.time_filter import TimeFilter
 from victor.generators.generator.patterns.bar_rotation import BarRotation
 from victor.generators.generator.patterns.breakout import Breakout
 
@@ -133,3 +134,22 @@ class BarRotationTest(unittest.TestCase, TestExchange):
         self.exchange.ohlc_subscribe(TEST_INSTRUMENT_ID, Timeframe.M1, handler)
 
 
+class TimeFilterTest(unittest.TestCase, TestExchange):
+    def setUp(self) -> None:
+        self.from_time = time(10, 0, 0)
+        self.to_time = time(13, 0, 0)
+        self.time_filter = TimeFilter(self.from_time, self.to_time)
+
+    def test_name(self):
+        self.assertEqual(self.time_filter.name, 'time-filter')
+
+    def test_logic(self):
+        TestExchange.__init__(self)
+
+        def handler(candle: Candle):
+            self.time_filter.next(candle)
+
+            condition = self.from_time <= candle['time'].time() <= self.to_time
+            self.assertTrue(self.time_filter.value() == condition)
+
+        self.exchange.ohlc_subscribe(TEST_INSTRUMENT_ID, Timeframe.M1, handler)
