@@ -6,6 +6,7 @@ from victor.exchange.types import Timeframe, Candle, LimitOrderRequest, MarketOr
 
 logging.basicConfig(level=logging.DEBUG)
 
+
 class TinkoffTest(unittest.IsolatedAsyncioTestCase):
     exchange: TinkoffExchangeClient = TinkoffExchangeClient()
 

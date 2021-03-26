@@ -1,11 +1,15 @@
 import unittest
+from datetime import datetime, timedelta
+from typing import List
 
 from tests.environments.RSI import RSIEnvironment
 from victor.config import GENERATOR_MAX_DEQUE_LENGTH
 from victor.generators import Generator
 from victor.exchange.types import Candle, Timeframe
 from victor.exchange.finam_test import FinamExchangeTestClient
+from victor.generators.generator.candle.candle_aggregator import CandleAggregator
 
+import numpy as np
 
 TEST_INSTRUMENT_ID = '../data/TATN_210101_210131.csv'
 
@@ -36,3 +40,36 @@ class TechnicalIndicatorTest(unittest.TestCase, RSIEnvironment):
         abstract_generator = Generator[float](name='some generator')
 
         self.assertRaises(NotImplementedError, abstract_generator.next, 1)
+
+
+class CandleAggregatorTest(unittest.TestCase):
+    candle_aggregator: CandleAggregator
+
+    def setUp(self) -> None:
+        pass
+
+    def test_5_minutes(self):
+        self.candle_aggregator = CandleAggregator(5)
+        candles: List[Candle] = []
+
+        for i, close in enumerate(np.linspace(10, 100, 101)):
+            candles.append(Candle(
+                close=close,
+                volume=1,
+                low=close - 0.1,
+                high=close + 0.1,
+                open=close,
+                time=datetime.now() - timedelta(minutes=200 - i)
+            ))
+
+        for candle in candles:
+            self.candle_aggregator.next(candle)
+
+        for i in range(1, len(self.candle_aggregator.resultDeque)):
+            self.assertTrue(
+                abs(self.candle_aggregator.resultDeque[i]['time'] - self.candle_aggregator.resultDeque[i - 1]['time']),
+                timedelta(seconds=1))
+            self.assertAlmostEqual(self.candle_aggregator.resultDeque[i - 1]['open'], candles[(i - 1) * 5]['open'])
+            self.assertAlmostEqual(self.candle_aggregator.resultDeque[i - 1]['low'], candles[(i - 1) * 5]['low'])
+            self.assertAlmostEqual(self.candle_aggregator.resultDeque[i - 1]['close'], candles[i * 5 - 1]['close'])
+            self.assertAlmostEqual(self.candle_aggregator.resultDeque[i - 1]['high'], candles[i * 5 - 1]['high'])

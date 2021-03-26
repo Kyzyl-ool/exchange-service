@@ -1,30 +1,28 @@
 from __future__ import annotations
 
 from collections import deque
-from typing import Generic, TypeVar, Union, Dict
+from typing import Generic, TypeVar, Union, Dict, Optional
 
 from victor.config import GENERATOR_MAX_DEQUE_LENGTH
 
-GeneratorType = TypeVar('GeneratorType')  # имена иникаторов
+GeneratorInput = TypeVar('GeneratorInput')
+GeneratorOutput = TypeVar('GeneratorOutput')
 
 
-class Generator(Generic[GeneratorType]):
+class Generator(Generic[GeneratorInput, GeneratorOutput]):
     dependencies: Dict[str, Generator]
     resultDeque: deque
     name: str
 
-    def __init__(self, **kwargs):
-        name = kwargs.get('name', None)
-        assert name is not None
-
+    def __init__(self, name: str):
         self.name = name
         self.resultDeque = deque([], GENERATOR_MAX_DEQUE_LENGTH)
         self.dependencies = {}
 
-    def next(self, value: GeneratorType):
+    def next(self, value: GeneratorInput):
         raise NotImplementedError('Попытка вызова не реализованного метода')
 
-    def value(self) -> Union[GeneratorType, None]:
+    def value(self) -> Union[GeneratorOutput, None]:
         if len(self.resultDeque) > 0:
             return self.resultDeque[-1]
         else:
