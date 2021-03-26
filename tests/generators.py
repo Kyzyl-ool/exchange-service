@@ -2,7 +2,6 @@ import unittest
 from datetime import datetime, timedelta, time
 from typing import List
 
-from tests.environments.RSI import RSIEnvironment
 from tests.environments.exchange import TestExchange
 from victor.config import GENERATOR_MAX_DEQUE_LENGTH
 from victor.exchange.types import Candle, Timeframe

@@ -6,23 +6,24 @@ from victor.algorithm.momentum.breakout import BreakoutProbabilityAlgorithm
 from victor.config import TEST_INSTRUMENT
 from victor.exchange.types import Timeframe, Candle
 from victor.algorithm.momentum import RSIProbabilityAlgorithm
-from victor.generators.generator_set import GeneratorSet
+from victor.generators.generator.technical_indicators.momentum import RSI
 from victor.risk_management.classic import Classic
 
 
-class RSIProbabilityAlgorithmTest(unittest.TestCase, RSIAlgorithmEnvironment, TestExchange):
-    algorithm: RSIProbabilityAlgorithm
-    generator_set: GeneratorSet
-
+class RSIProbabilityAlgorithmTest(unittest.TestCase, TestExchange):
     def setUp(self) -> None:
-        RSIAlgorithmEnvironment.__init__(self)
         TestExchange.__init__(self)
+
+        self.risk_management = Classic(stop_loss=30, take_profit=60, v0=1, instrument=TEST_INSTRUMENT)
+        self.algorithm = RSIProbabilityAlgorithm(lower_bound=10, upper_bound=90, risk_management=self.risk_management, instrument=TEST_INSTRUMENT, rsi_n=14)
 
     def test_probability(self):
         def handler(candle: Candle):
-            self.next_candle(candle)
+            self.algorithm.general_pool.update_generators(candle)
+            self.exchange.update(candle)
+
             p = self.algorithm.probability()
-            rsi = self.rsi.value()
+            rsi = self.algorithm.general_pool.get_generator(RSI.make_name(TEST_INSTRUMENT), TEST_INSTRUMENT).value()
 
             if rsi < self.algorithm.lower_bound:
                 self.assertEqual(p, 1)
@@ -45,3 +46,10 @@ class BreakoutProbabilityAlgorithmTest(unittest.TestCase, TestExchange):
 
     def test_name(self):
         self.assertEqual(self.algorithm.name, BreakoutProbabilityAlgorithm.make_name(TEST_INSTRUMENT, 5, 2))
+
+    def test_logic(self):
+        def handler(candle: Candle):
+            self.exchange.update(candle)
+            self.algorithm.general_pool.update_generators(candle)
+
+        self.exchange.ohlc_subscribe(self.algorithm.instrument['id'], Timeframe.M1, handler)

@@ -41,3 +41,14 @@ class Generator(Generic[GeneratorInput, GeneratorOutput]):
         if not self.general_pool.is_generator_exist(generator.name, self.instrument):
             self.general_pool.add_generator(generator, self.instrument)
 
+    @classmethod
+    def make_name(cls, instrument: Instrument, *args, **kwargs):
+        instrument_id = instrument['id']
+
+        str1 = ', '.join(args)
+        str2 = ", ".join(f"{key}={value}" for key, value in kwargs.items())
+
+        params = ', '.join(
+            [x for x in [instrument_id, str1 if len(str1) > 0 else None, str2 if len(str2) > 0 else None] if x is not None]
+        )
+        return f'{cls.__name__}({params})'

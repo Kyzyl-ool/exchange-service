@@ -14,7 +14,7 @@ class BreakoutProbabilityAlgorithm(ProbabilityAlgorithm):
         ProbabilityAlgorithm.__init__(self, BreakoutProbabilityAlgorithm.make_name(instrument, n, m), risk_management,
                                       instrument)
 
-        self.add_dependency(Breakout(n=n, m=m, instrument=instrument))
+        self._add_dependency(Breakout(n=n, m=m, instrument=instrument))
         self.breakout = self.general_pool.get_generator(Breakout.make_name(n, m), instrument)
 
     def _probability(self) -> float:

@@ -3,7 +3,7 @@ from __future__ import annotations
 import logging
 from typing import Dict, Any
 
-from ..exchange.types import Instrument
+from ..exchange.types import Instrument, Candle
 
 
 class GeneralPool(object):
@@ -33,5 +33,10 @@ class GeneralPool(object):
 
     def get_generator(self, generator_id: str, instrument: Instrument):
         return self.__generators[self.__make_name(generator_id, instrument)]
+
+    def update_generators(self, candle: Candle):
+        for generator in self.__generators.values():
+            generator.next(candle)
+
 
 

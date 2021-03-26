@@ -2,12 +2,10 @@ from victor.exchange.types import Candle, Instrument
 
 from victor.generators.generator.technical_indicators import TechnicalIndicator
 
-U_NAME = 'u'
-
 
 class U(TechnicalIndicator):
-    def __init__(self, punct: float, instrument: Instrument, limit: int):
-        TechnicalIndicator.__init__(self, punct=punct, name=U_NAME, instrument=instrument, limit=limit)
+    def __init__(self, instrument: Instrument, limit: int):
+        TechnicalIndicator.__init__(self, name=U.make_name(instrument), instrument=instrument, limit=limit)
 
     def next(self, candle: Candle):
         price_change = candle['close'] - candle['open']

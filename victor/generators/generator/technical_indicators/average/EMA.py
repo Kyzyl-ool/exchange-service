@@ -7,19 +7,13 @@ class EMA(TechnicalIndicator):
     N: int
     target_generator_name: str
 
-    @staticmethod
-    def make_name(target_generator_name: str, n: int) -> str:
-        __EMA_BASE_NAME = 'ema'
-
-        return f'{__EMA_BASE_NAME}({target_generator_name}, {n})'
-
-    def __init__(self, n: int, target_generator_name: str, punct: float, instrument: Instrument, limit: int):
+    def __init__(self, n: int, target_generator_name: str, instrument: Instrument, limit: int):
         """
         Гарантируется, что target_generator_name существует в общем пуле генераторов
         """
-        generator_name = self.make_name(target_generator_name, n)
+        generator_name = EMA.make_name(instrument, target_generator_name=target_generator_name, n=n)
 
-        TechnicalIndicator.__init__(self, punct=punct, name=generator_name, instrument=instrument, limit=limit)
+        TechnicalIndicator.__init__(self, name=generator_name, instrument=instrument, limit=limit)
 
         self.N = n
         self.target_generator_name = target_generator_name

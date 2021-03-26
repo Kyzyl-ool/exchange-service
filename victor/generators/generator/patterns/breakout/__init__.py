@@ -36,7 +36,7 @@ class Breakout(TechnicalIndicator):
             v = candle_aggregated['volume']
             t = candle_aggregated['time']
 
-            candles = list(self.candle_aggregator.resultDeque)
+            candles = list(candle_aggregator.resultDeque)
 
             co_max = max(c, o)
 
@@ -86,7 +86,7 @@ class Breakout(TechnicalIndicator):
             if candle['close'] > d2:
                 self.broken_levels.append(level)
 
-        self.resultDeque.append(self.norm(w=10.0, bias=self.punct))
+        self.resultDeque.append(self.norm(w=10.0, bias=self.instrument['punct']))
 
     def norm(self, w=1.0, bias=0.01):
         result = 0

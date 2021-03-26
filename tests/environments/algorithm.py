@@ -1,4 +1,3 @@
-from tests.environments.RSI import RSIEnvironment
 from victor.algorithm.momentum import RSIProbabilityAlgorithm
 from victor.risk_management import RiskManagement
 from victor.risk_management.classic import Classic
@@ -10,12 +9,10 @@ STOP_LOSS = 30
 TAKE_PROFIT = 60
 
 
-class RSIAlgorithmEnvironment(RSIEnvironment):
+class RSIAlgorithmEnvironment:
     risk_management: RiskManagement
 
     def __init__(self):
-        RSIEnvironment.__init__(self)
-
         self.risk_management = Classic(
             stop_loss=STOP_LOSS,
             take_profit=TAKE_PROFIT,

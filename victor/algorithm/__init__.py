@@ -20,7 +20,7 @@ class Algorithm:
     def determine(self) -> Union[OperationType, None]:
         raise NotImplementedError('Необходимо отнаследоваться и реализовать этот метод')
 
-    def add_dependency(self, generator: Generator):
+    def _add_dependency(self, generator: Generator):
         if not self.general_pool.is_generator_exist(generator.name, self.instrument):
             self.general_pool.add_generator(generator, self.instrument)
 
