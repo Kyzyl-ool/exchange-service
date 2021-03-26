@@ -18,15 +18,15 @@ class GeneratorDependencyManager:
         """
         Добавляет генератор в общий пул. Если уже есть – ничего не делает
         """
-        if not self.general_pool.is_generator_exist(generator.name, generator.instrument):
-            self.general_pool.add_generator(generator, generator.instrument)
+        if not self.general_pool.is_generator_exist(generator.name):
+            self.general_pool.add_generator(generator)
 
     @classmethod
     def make_name(cls, instrument: Instrument, *args, **kwargs):
         instrument_id = instrument['id']
 
         str1 = ', '.join(map(str, args))
-        str2 = ", ".join(f"{key}={value}" for key, value in kwargs.items())
+        str2 = ", ".join(f"{key}={value}" for key, value in sorted(kwargs.items()))
 
         params = ', '.join(
             [x for x in [instrument_id, str1 if len(str1) > 0 else None, str2 if len(str2) > 0 else None] if

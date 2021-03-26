@@ -5,7 +5,8 @@ from victor.generators.generator.technical_indicators import TechnicalIndicator
 
 class Breakout(TechnicalIndicator):
     def __init__(self, n: int, m: int, instrument: Instrument):
-        TechnicalIndicator.__init__(self, name=Breakout.make_name(n, m), instrument=instrument, limit=None)
+        TechnicalIndicator.__init__(self, name=Breakout.make_name(instrument, n=n, m=m), instrument=instrument,
+                                    limit=None)
         self._add_dependency(CandleAggregator(n=n, instrument=instrument))
 
         self.m = m  # сила уровня
@@ -14,17 +15,12 @@ class Breakout(TechnicalIndicator):
         self.levels = []
         self.broken_levels = []
 
-    @staticmethod
-    def make_name(n: int, m: int):
-        return f'breakout-up-generator({n}, {m})'
-
     def next(self, candle: Candle):
         for level in self.broken_levels:
             self.levels.remove(level)
         self.broken_levels.clear()
 
-        candle_aggregator = self.general_pool.get_generator(CandleAggregator.make_name(self.instrument, self.n),
-                                                            self.instrument)
+        candle_aggregator = self.general_pool.get_generator(CandleAggregator.make_name(self.instrument, n=self.n))
 
         candle_aggregated = candle_aggregator.next(candle)
 

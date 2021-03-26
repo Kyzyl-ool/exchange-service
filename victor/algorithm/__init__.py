@@ -20,10 +20,6 @@ class Algorithm(GeneratorDependencyManager):
     def determine(self) -> Union[OperationType, None]:
         raise NotImplementedError('Необходимо отнаследоваться и реализовать этот метод')
 
-    def _add_dependency(self, generator: Generator):
-        if not self.general_pool.is_generator_exist(generator.name, self.instrument):
-            self.general_pool.add_generator(generator, self.instrument)
-
 
 class ProbabilityAlgorithm(Algorithm):
     def probability(self, reverse=False) -> float:

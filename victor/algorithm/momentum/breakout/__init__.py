@@ -15,7 +15,7 @@ class BreakoutProbabilityAlgorithm(ProbabilityAlgorithm):
                                       instrument)
 
         self._add_dependency(Breakout(n=n, m=m, instrument=instrument))
-        self.breakout = self.general_pool.get_generator(Breakout.make_name(n, m), instrument)
+        self.breakout = self.general_pool.get_generator(Breakout.make_name(instrument, n=n, m=m))
 
     def _probability(self) -> float:
         if self.breakout.value() > 0:

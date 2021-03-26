@@ -1,15 +1,16 @@
 from collections import deque
 
-from victor.exchange.types import Candle
+from victor.exchange.types import Candle, Instrument
 from victor.generators.generator.candle.heiken_ashi import HeikenAshi
 from victor.generators.generator.technical_indicators import TechnicalIndicator
 
 
-class BarRotation(TechnicalIndicator):
-    def __init__(self, punct: float, short: bool, heiken_ashi_generator: HeikenAshi):
-        TechnicalIndicator.__init__(self, name='bar-rotation', punct=punct)
-        self._add_dependency(heiken_ashi_generator)
-        self.heiken_ashi_generator = self.dependencies[heiken_ashi_generator.name]
+class BarRotationGenerator(TechnicalIndicator):
+    def __init__(self, short: bool, instrument: Instrument, limit: int):
+        TechnicalIndicator.__init__(self, name=BarRotationGenerator.make_name(instrument, short=short), instrument=instrument,
+                                    limit=limit)
+
+        self._add_dependency(HeikenAshi(instrument))
         self.first_white_bars_amount = 0
         self.black_bars_amount = 0
         self.queue = deque()
@@ -38,7 +39,7 @@ class BarRotation(TechnicalIndicator):
         })
 
     def __next(self, candle: Candle):
-        ha_candle = self.heiken_ashi_generator.value()
+        ha_candle = self.general_pool.get_generator(HeikenAshi.make_name(self.instrument)).value()
         close1 = ha_candle['close']
         open1 = ha_candle['open']
         self.is_white_bar = (close1 - open1 > 0) == (not self.short)
@@ -73,7 +74,7 @@ class BarRotation(TechnicalIndicator):
 
     def next(self, candle: Candle):
         result = self.__next(candle)
-        self.resultDeque.append(self.norm(result, bias=self.punct, w1=10.0, w2=10.0))
+        self.resultDeque.append(self.norm(result, bias=self.instrument['punct'], w1=10.0, w2=10.0))
         return result
 
     def norm(self, item, w1=1.0, w2=1.0, bias=0.01) -> float:
