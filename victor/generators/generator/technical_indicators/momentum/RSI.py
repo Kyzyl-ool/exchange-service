@@ -8,7 +8,7 @@ class RSI(TechnicalIndicator):
     def __init__(self, instrument: Instrument, limit: int, n: int):
         TechnicalIndicator.__init__(self, RSI.make_name(instrument), instrument, limit)
 
-        self.add_dependency(RS(instrument, limit, n))
+        self._add_dependency(RS(instrument, limit, n))
 
     def next(self, candle: Candle):
         rs_value = self.general_pool.get_generator(RS.make_name(self.instrument), self.instrument).value()

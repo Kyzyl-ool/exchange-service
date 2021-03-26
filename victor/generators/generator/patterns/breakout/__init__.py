@@ -6,7 +6,7 @@ from victor.generators.generator.technical_indicators import TechnicalIndicator
 class Breakout(TechnicalIndicator):
     def __init__(self, n: int, m: int, instrument: Instrument):
         TechnicalIndicator.__init__(self, name=Breakout.make_name(n, m), instrument=instrument, limit=None)
-        self.add_dependency(CandleAggregator(n=n, instrument=instrument))
+        self._add_dependency(CandleAggregator(n=n, instrument=instrument))
 
         self.m = m  # сила уровня
         self.n = n

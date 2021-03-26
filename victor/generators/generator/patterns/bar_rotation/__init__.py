@@ -8,7 +8,7 @@ from victor.generators.generator.technical_indicators import TechnicalIndicator
 class BarRotation(TechnicalIndicator):
     def __init__(self, punct: float, short: bool, heiken_ashi_generator: HeikenAshi):
         TechnicalIndicator.__init__(self, name='bar-rotation', punct=punct)
-        self.add_dependency(heiken_ashi_generator)
+        self._add_dependency(heiken_ashi_generator)
         self.heiken_ashi_generator = self.dependencies[heiken_ashi_generator.name]
         self.first_white_bars_amount = 0
         self.black_bars_amount = 0

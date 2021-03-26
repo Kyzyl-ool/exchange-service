@@ -3,13 +3,13 @@ import numpy as np
 
 from victor.exchange.types import Instrument
 from victor.generators import GeneralPool
-from victor.generators.generator import Generator
+from victor.generators.generator import Generator, GeneratorDependencyManager
 from victor.risk_management import RiskManagement
 
 OperationType = Union['BUY', 'SELL']
 
 
-class Algorithm:
+class Algorithm(GeneratorDependencyManager):
     general_pool: GeneralPool = GeneralPool.getInstance()
 
     def __init__(self, name: str, risk_management: RiskManagement, instrument: Instrument):

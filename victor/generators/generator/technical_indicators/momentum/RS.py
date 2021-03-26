@@ -10,13 +10,13 @@ class RS(TechnicalIndicator):
         TechnicalIndicator.__init__(self, name=RS.make_name(instrument), instrument=instrument, limit=limit)
         self.n = n
 
-        self.add_dependency(U(instrument, limit))
-        self.add_dependency(D(instrument, limit))
+        self._add_dependency(U(instrument, limit))
+        self._add_dependency(D(instrument, limit))
         self.u_name = U.make_name(instrument)
         self.d_name = D.make_name(instrument)
 
-        self.add_dependency(EMA(n, U.make_name(instrument), instrument, limit))
-        self.add_dependency(EMA(n, D.make_name(instrument), instrument, limit))
+        self._add_dependency(EMA(n, U.make_name(instrument), instrument, limit))
+        self._add_dependency(EMA(n, D.make_name(instrument), instrument, limit))
         self.ema_u_name = EMA.make_name(instrument, target_generator_name=self.u_name, n=n)
         self.ema_d_name = EMA.make_name(instrument, target_generator_name=self.d_name, n=n)
 

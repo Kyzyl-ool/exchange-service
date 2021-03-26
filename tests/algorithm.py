@@ -1,6 +1,5 @@
 import unittest
 
-from tests.environments.algorithm import RSIAlgorithmEnvironment
 from tests.environments.exchange import TestExchange
 from victor.algorithm.momentum.breakout import BreakoutProbabilityAlgorithm
 from victor.config import TEST_INSTRUMENT
@@ -15,7 +14,8 @@ class RSIProbabilityAlgorithmTest(unittest.TestCase, TestExchange):
         TestExchange.__init__(self)
 
         self.risk_management = Classic(stop_loss=30, take_profit=60, v0=1, instrument=TEST_INSTRUMENT)
-        self.algorithm = RSIProbabilityAlgorithm(lower_bound=10, upper_bound=90, risk_management=self.risk_management, instrument=TEST_INSTRUMENT, rsi_n=14)
+        self.algorithm = RSIProbabilityAlgorithm(lower_bound=10, upper_bound=90, risk_management=self.risk_management,
+                                                 instrument=TEST_INSTRUMENT, rsi_n=14)
 
     def test_probability(self):
         def handler(candle: Candle):

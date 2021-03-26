@@ -22,8 +22,3 @@ class BreakoutProbabilityAlgorithm(ProbabilityAlgorithm):
             return 1
         else:
             return 0
-
-    @staticmethod
-    def make_name(instrument: Instrument, n: int, m: int):
-        instrument_id = instrument['id']
-        return f'breakout-up-algorithm({instrument_id}, {n}, {m})'
