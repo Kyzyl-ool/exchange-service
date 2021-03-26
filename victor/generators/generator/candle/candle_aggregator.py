@@ -13,7 +13,7 @@ class CandleAggregator(Generator[Candle, Candle]):
     def __init__(self, n: int):
         assert (n > 0)
 
-        Generator.__init__(self, f'candle-aggregator({n})')
+        Generator.__init__(self, name=f'candle-aggregator({n})', limit=None)
         self.n = n
         self.k = 0
         self.buffer = []
@@ -57,3 +57,5 @@ class CandleAggregator(Generator[Candle, Candle]):
 
         if result is not None:
             self.resultDeque.append(result)
+
+        return result

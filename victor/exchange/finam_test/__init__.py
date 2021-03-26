@@ -17,6 +17,7 @@ class FinamExchangeTestClient(AbstractExchangeClient):
     portfolio: Portfolio
     current_index: int
     order_index: int
+    handler: Callable[[Candle], None]
 
     def __init__(self, fixed_comission=0.0005):
         self.df = None
@@ -25,7 +26,8 @@ class FinamExchangeTestClient(AbstractExchangeClient):
         self.order_index = -1
         self.fixed_comission = fixed_comission
 
-    def ohlc_subscribe(self, instrument_id: str, timeframe: Timeframe, handler: Callable[[Candle], None]):
+    def ohlc_subscribe(self, instrument_id: str, timeframe: Timeframe, handler: Callable[[Candle], None],
+                       run_immediately=True):
         """
         Имитирует подписку на получение свечных данных.
         Сразу после вызова прогоняет исторические данные через обработчик handler
@@ -33,15 +35,21 @@ class FinamExchangeTestClient(AbstractExchangeClient):
         :param instrument_id: имя файла с историческими данными
         :param timeframe: таймфрейм, игнорируется
         :param handler: обработчик
+        :param run_immediately
         :return:
         """
         self.df = pd.read_csv(instrument_id)
         self.df = D.add_col(self.df, '<DATETIME>', D.make_datetime(self.df))
         self.df['<DATETIME>'] -= datetime.timedelta(minutes=1)
+        self.handler = handler
 
+        if run_immediately:
+            self.run()
+
+    def run(self):
         for i, row in tqdm(self.df.iterrows()):
             self.current_index = i
-            handler({
+            self.handler({
                 'close': row['<CLOSE>'],
                 'open': row['<OPEN>'],
                 'high': row['<HIGH>'],

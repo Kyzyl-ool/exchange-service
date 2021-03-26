@@ -14,9 +14,9 @@ class Generator(Generic[GeneratorInput, GeneratorOutput]):
     resultDeque: deque
     name: str
 
-    def __init__(self, name: str):
+    def __init__(self, name: str, limit=GENERATOR_MAX_DEQUE_LENGTH):
         self.name = name
-        self.resultDeque = deque([], GENERATOR_MAX_DEQUE_LENGTH)
+        self.resultDeque = deque([], limit)
         self.dependencies = {}
 
     def next(self, value: GeneratorInput):
