@@ -25,7 +25,7 @@ class GeneratorDependencyManager:
     def make_name(cls, instrument: Instrument, *args, **kwargs):
         instrument_id = instrument['id']
 
-        str1 = ', '.join(args)
+        str1 = ', '.join(map(str, args))
         str2 = ", ".join(f"{key}={value}" for key, value in kwargs.items())
 
         params = ', '.join(
