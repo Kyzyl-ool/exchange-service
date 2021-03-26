@@ -12,6 +12,8 @@ from victor.generators.generator.candle.candle_aggregator import CandleAggregato
 
 import numpy as np
 
+from victor.generators.generator.candle.heiken_ashi import HeikenAshi
+from victor.generators.generator.patterns.bar_rotation import BarRotation
 from victor.generators.generator.patterns.breakout import Breakout
 
 TEST_INSTRUMENT_ID = '../data/TATN_210101_210131.csv'
@@ -105,4 +107,29 @@ class BreakoutTest(unittest.TestCase, TestExchange):
         for level in self.breakout.levels:
             i = level['i']
             self.assertTrue(abs(level['time'] - self.exchange.df.iloc[i]['<DATETIME>']), timedelta(seconds=1))
-        pass
+
+
+class BarRotationTest(unittest.TestCase, TestExchange):
+    def setUp(self) -> None:
+        self.heiken_ashi = HeikenAshi()
+        self.bar_rotation = BarRotation(punct=0.01, short=False, heiken_ashi_generator=self.heiken_ashi)
+
+    def test_name(self):
+        self.assertEqual(self.bar_rotation.name, 'bar-rotation')
+
+    def test_logic(self):
+        TestExchange.__init__(self)
+
+        def handler(candle: Candle):
+            self.heiken_ashi.next(candle)
+            self.bar_rotation.next(candle)
+            if len(self.heiken_ashi.resultDeque) > 2:
+                previous_sign = self.heiken_ashi.resultDeque[-2]['close'] - self.heiken_ashi.resultDeque[-2]['open']
+                current_sign = self.heiken_ashi.resultDeque[-1]['close'] - self.heiken_ashi.resultDeque[-1]['open']
+                bar_rotation_value = self.bar_rotation.value()
+                if bar_rotation_value > 0:
+                    self.assertTrue(previous_sign*current_sign <= 0)
+
+        self.exchange.ohlc_subscribe(TEST_INSTRUMENT_ID, Timeframe.M1, handler)
+
+
