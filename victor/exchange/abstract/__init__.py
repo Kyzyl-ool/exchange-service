@@ -50,3 +50,6 @@ class AbstractExchangeClient:
         assert result_volume == 0
 
         return result - comission, comission
+
+    def close_connections(self):
+        raise NotImplementedError

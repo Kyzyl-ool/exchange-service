@@ -2,6 +2,7 @@
 Все типы, относящиеся к биржевому клиенту
 """
 import enum
+from datetime import datetime
 from typing import TypedDict, Optional, Dict
 
 
@@ -11,7 +12,7 @@ class Candle(TypedDict):
     low: float
     close: float
     volume: float
-    time: str
+    time: datetime
 
 
 class OrderState(TypedDict):
@@ -39,6 +40,7 @@ class Timeframe(enum.Enum):
     H4 = 7
     D1 = 8
     W1 = 9
+    MONTH = 10
 
 
 class Order(Instrument):
