@@ -1,29 +1,24 @@
-from victor.exchange.types import Candle
+from victor.exchange.types import Candle, Instrument
 
 from victor.generators.generator.technical_indicators import TechnicalIndicator
 from victor.generators.generator.technical_indicators.momentum import RS
+from victor.generators.generator.technical_indicators.momentum.RS import RS_NAME
+
+RSI_NAME = 'rsi'
 
 
 class RSI(TechnicalIndicator):
-    def __init__(self, rs: RS, **kwargs):
-        kwargs['name'] = kwargs.get('name', 'RSI')
-        super().__init__(**kwargs)
+    def __init__(self, punct: float, instrument: Instrument, limit: int, n: int):
+        TechnicalIndicator.__init__(self, punct, RSI_NAME, instrument, limit)
 
-        assert rs is not None
-        assert rs.name == 'RS'
-
-        self.add_dependency(rs)
+        self.add_dependency(RS(punct, instrument, limit, n))
 
     def next(self, candle: Candle):
-        rs_value = self.dependencies['RS'].value()
-
-        result = None
+        rs_value = self.general_pool.get_generator(RS_NAME, self.instrument).value()
 
         if rs_value is not None:
             result = 100 - 100 / (1 + rs_value)
         else:
             result = 50
-
-        assert result is not None
 
         self.resultDeque.append(result)

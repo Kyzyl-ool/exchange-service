@@ -20,15 +20,24 @@ class Generator(Generic[GeneratorInput, GeneratorOutput]):
         self.instrument = instrument
 
     def next(self, value: GeneratorInput):
+        """
+        Оьновить значение генератора
+        """
         raise NotImplementedError('Попытка вызова не реализованного метода')
 
     def value(self) -> Union[GeneratorOutput, None]:
+        """
+        Значение генератора в данный момент
+        """
         if len(self.resultDeque) > 0:
             return self.resultDeque[-1]
         else:
             return None
 
     def add_dependency(self, generator: Generator):
+        """
+        Добавляет генератор в общий пул. Если уже есть – ничего не делает
+        """
         if not self.general_pool.is_generator_exist(generator.name, self.instrument):
             self.general_pool.add_generator(generator, self.instrument)
 
