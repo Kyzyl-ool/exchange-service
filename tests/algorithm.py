@@ -2,6 +2,7 @@ import unittest
 
 from tests.environments.algorithm import RSIAlgorithmEnvironment
 from tests.environments.exchange import TestExchange
+from victor.algorithm.momentum.breakout import BreakoutProbabilityAlgorithm
 from victor.exchange.types import Timeframe, Candle
 from victor.generators import GeneratorSet
 from victor.algorithm.momentum import RSIProbabilityAlgorithm
@@ -30,3 +31,14 @@ class RSIProbabilityAlgorithmTest(unittest.TestCase, RSIAlgorithmEnvironment, Te
                 self.assertLessEqual(p, 1)
 
         self.exchange.ohlc_subscribe(self.algorithm.instrument['id'], Timeframe.M1, handler)
+
+
+class BreakoutProbabilityAlgorithmTest(unittest.TestCase, TestExchange):
+    def setUp(self) -> None:
+        TestExchange.__init__(self)
+        self.algorithm = BreakoutProbabilityAlgorithm()
+        self.generator_set = GeneratorSet()
+
+    def test_name(self):
+
+        self.assertEqual(self.algorithm.name, 'breaout-algorithm')

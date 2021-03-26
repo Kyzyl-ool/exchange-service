@@ -1,24 +1,26 @@
-from typing import Union
+from typing import Union, List
 import numpy as np
 
 from victor.exchange.types import Instrument
-from victor.generators import GeneratorSet
+from victor.generators import GeneratorSet, GeneralPool, Generator
 from victor.risk_management import RiskManagement
 
 OperationType = Union['BUY', 'SELL']
 
 
 class Algorithm:
-    name: str
-    generator_set: GeneratorSet
-    risk_management: RiskManagement
-    instrument: Instrument
+    general_pool: GeneralPool = GeneralPool()
 
-    def __init__(self, generator_set: GeneratorSet, name: str, risk_management: RiskManagement, instrument: Instrument):
-        self.generator_set = generator_set
+    def __init__(self, name: str, risk_management: RiskManagement, instrument: Instrument,
+                 requirements: List[Generator]):
         self.name = name
         self.risk_management = risk_management
         self.instrument = instrument
+        self.requirements = requirements
+
+        for generator in requirements:
+            if not self.general_pool.is_generator_exist(generator_id=generator.name, instrument=instrument):
+                self.general_pool.add_generator(generator_instance=generator, instrument=instrument)
 
     def determine(self) -> Union[OperationType, None]:
         raise NotImplementedError('Необходимо отнаследоваться и реализовать этот метод')

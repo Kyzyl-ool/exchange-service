@@ -1,23 +1,23 @@
 from __future__ import annotations
 
 from collections import deque
-from typing import Generic, TypeVar, Union, Dict, Optional
+from typing import Generic, TypeVar, Union
 
 from victor.config import GENERATOR_MAX_DEQUE_LENGTH
+from victor.exchange.types import Instrument
+from victor.generators import GeneralPool
 
 GeneratorInput = TypeVar('GeneratorInput')
 GeneratorOutput = TypeVar('GeneratorOutput')
 
 
 class Generator(Generic[GeneratorInput, GeneratorOutput]):
-    dependencies: Dict[str, Generator]
-    resultDeque: deque
-    name: str
+    general_pool: GeneralPool = GeneralPool()
 
-    def __init__(self, name: str, limit=GENERATOR_MAX_DEQUE_LENGTH):
+    def __init__(self, name: str, instrument: Instrument, limit=GENERATOR_MAX_DEQUE_LENGTH):
         self.name = name
         self.resultDeque = deque([], limit)
-        self.dependencies = {}
+        self.instrument = instrument
 
     def next(self, value: GeneratorInput):
         raise NotImplementedError('Попытка вызова не реализованного метода')
@@ -29,6 +29,6 @@ class Generator(Generic[GeneratorInput, GeneratorOutput]):
             return None
 
     def add_dependency(self, generator: Generator):
-        assert generator is not None
-        self.dependencies[generator.name] = generator
+        if not self.general_pool.is_generator_exist(generator.name, self.instrument):
+            self.general_pool.add_generator(generator, self.instrument)
 

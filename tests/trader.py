@@ -24,9 +24,9 @@ class TraderTest(unittest.TestCase, TraderEnvironment):
         self.exchange.ohlc_subscribe(TEST_INSTRUMENT_ID, Timeframe.M1, handler)
 
         rsi_max = max(50,
-                      max(self.trader.algorithms['rsi-algorithm'].generator_set.generators['RSI'].resultDeque))
+                      max(self.trader.algorithms['rsi-algorithm'].generator_set.__generators['RSI'].resultDeque))
         rsi_min = min(50,
-                      min(self.trader.algorithms['rsi-algorithm'].generator_set.generators['RSI'].resultDeque))
+                      min(self.trader.algorithms['rsi-algorithm'].generator_set.__generators['RSI'].resultDeque))
 
         self.assertGreater(rsi_max, 50)
         self.assertLess(rsi_min, 50)
