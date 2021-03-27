@@ -10,6 +10,7 @@ from victor.config import TEST_INSTRUMENT_ID, TEST_INSTRUMENT
 from victor.exchange.types import Candle, Timeframe, MarketOrderRequest
 from victor.generators.generator.technical_indicators.momentum import RSI
 from victor.risk_management.classic import Classic
+from victor.risk_management.momentum import MomentumRiskManagement
 from victor.trader import Trader
 
 logging.basicConfig(level=logging.INFO)
@@ -74,7 +75,7 @@ class TraderTest(unittest.TestCase, TestExchange):
         logging.info(
             f'Финансовый результат по exchange: {self.trader.exchange.financial_result(self.exchange.last_candle)}')
 
-        self.assertEqual(len(self.exchange.orders)-len(self.exchange.active_orders), len(self.exchange.portfolio.log))
+        self.assertEqual(len(self.exchange.orders) - len(self.exchange.active_orders), len(self.exchange.portfolio.log))
 
     def test_trader_with_main_algorithm(self):
         self.trader = Trader(
@@ -111,4 +112,46 @@ class TraderTest(unittest.TestCase, TestExchange):
 
         self.assertEqual(len(self.exchange.orders) - len(self.exchange.active_orders), len(self.exchange.portfolio.log))
 
+    def test_trader_with_momentum_risk_management(self):
+        self.risk_management = MomentumRiskManagement(
+            stop_loss=30,
+            instrument=TEST_INSTRUMENT,
+            alpha=0.2,
+            d=60,
+            take_profit=60,
+            v0=5,
+        )
+        self.trader = Trader(
+            algorithms=[
+                MainAlgorithm(
+                    instrument=TEST_INSTRUMENT,
+                    risk_management=self.risk_management,
+                )
+            ],
+            exchange=self.exchange,
+            max_orders=1
+        )
 
+        def handler(candle: Candle):
+            self.trader.general_pool.update_generators(candle)
+            self.trader.exchange.update(candle)
+            self.trader.perform_signals(candle)
+
+        self.exchange.ohlc_subscribe(TEST_INSTRUMENT_ID, Timeframe.M1, handler)
+
+        self.exchange.market_order(MarketOrderRequest(
+            punct=TEST_INSTRUMENT['punct'],
+            volume=abs(self.exchange.portfolio.V),
+            buy=self.exchange.portfolio.V < 0,
+            id=TEST_INSTRUMENT['id'],
+        ))
+
+        self.trader.exchange.update(self.exchange.last_candle)
+
+        logging.info(
+            f'Финансовый результат по portfolio: {self.trader.exchange.portfolio.result()}, комиссия: ({self.trader.exchange.portfolio.getComission()})')
+        logging.info(
+            f'Финансовый результат по exchange: {self.trader.exchange.financial_result(self.exchange.last_candle)}')
+
+        self.assertEqual(len(self.exchange.orders) - len(self.exchange.active_orders),
+                         len(self.exchange.portfolio.log))

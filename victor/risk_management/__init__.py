@@ -13,6 +13,8 @@ class Rule:
     instrument: Instrument
     buy: bool
     order_id: str
+    take_profit: float
+    stop_loss: float
 
     def __init__(self, v0: float, instrument: Instrument, buy: bool):
         self.v0 = v0
@@ -36,8 +38,20 @@ class Rule:
             price=candle['close']
         )
 
-    def exit_force(self) -> MarketOrderRequest:
+    def exit_force(self):
         raise NotImplementedError('Необходимо унаследовать этот класс и реализовать этот метод')
+
+    def is_order_would_fulfilled(self, candle: Candle):
+        high = candle['high']
+        low = candle['low']
+
+        if self.opened:
+            if self.buy:
+                if high > self.take_profit or low < self.stop_loss:
+                    return True
+            else:
+                if low < self.take_profit or high > self.stop_loss:
+                    return True
 
 
 class RiskManagement(Generic[RuleType]):

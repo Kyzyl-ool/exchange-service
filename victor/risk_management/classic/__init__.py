@@ -9,9 +9,6 @@ class ClassicRule(Rule):
     stop_loss_punct: float
     take_profit_punct: float
 
-    stop_loss: float
-    take_profit: float
-
     def __init__(self, stop_loss: float, take_profit: float, **kwargs):
         """
         stop_loss, take_profit – в пунктах
@@ -21,33 +18,18 @@ class ClassicRule(Rule):
         self.take_profit_punct = take_profit * self.instrument['punct']
 
     def exit_order(self, candle: Candle) -> Union[LimitOrderRequest, MarketOrderRequest, None]:
-        high = candle['high']
-        low = candle['low']
         close = candle['close']
 
-        if self.opened:
-            if self.buy:
-                if high > self.take_profit or low < self.stop_loss:
-                    self.closed = True
-                    logging.debug(f'[{self.order_id}]: {self.p0} -> {close} (long)')
+        if self.is_order_would_fulfilled(candle):
+            self.closed = True
+            logging.debug(f'[{self.order_id}]: {self.p0} -> {close} (long)')
 
-                    return MarketOrderRequest(
-                        volume=self.v0,
-                        punct=self.instrument['punct'],
-                        buy=False,
-                        id=self.instrument['id']
-                    )
-            else:
-                if low < self.take_profit or high > self.stop_loss:
-                    self.closed = True
-                    logging.debug(f'[{self.order_id}]: {self.p0} -> {close} (short)')
-
-                    return MarketOrderRequest(
-                        volume=self.v0,
-                        punct=self.instrument['punct'],
-                        id=self.instrument['id'],
-                        buy=True
-                    )
+            return MarketOrderRequest(
+                volume=self.v0,
+                punct=self.instrument['punct'],
+                buy=not self.buy,
+                id=self.instrument['id']
+            )
 
         return None
 
