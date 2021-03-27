@@ -83,12 +83,6 @@ class TraderTest(unittest.TestCase, TestExchange):
                     instrument=TEST_INSTRUMENT,
                     risk_management=self.risk_management,
                 )
-                # BarRotationAlgorithm(instrument=TEST_INSTRUMENT, risk_management=self.risk_management,
-                #                      short=self.short),
-                # BreakoutProbabilityAlgorithm(instrument=TEST_INSTRUMENT, risk_management=self.risk_management, n=5,
-                #                              m=2),
-                # OnlyMarketOpeningAlgorithm(instrument=TEST_INSTRUMENT, risk_management=self.risk_management,
-                #                            market=Market.rus, first_n_hours=1)
             ],
             exchange=self.exchange,
             max_orders=1
