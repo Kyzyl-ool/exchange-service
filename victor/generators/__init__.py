@@ -29,8 +29,8 @@ class GeneralPool(object):
     def get_generator(self, generator_id: str):
         return self.__generators[generator_id]
 
-    def select_generator(self, generator: Type[Any], instrument: Instrument):
-        return self.__generators[generator.make_name(instrument)]
+    def select_generator(self, generator: Type[Any], instrument: Instrument, *args, **kwargs):
+        return self.__generators[generator.make_name(instrument, *args, **kwargs)]
 
     def update_generators(self, candle: Candle):
         for generator in self.__generators.values():

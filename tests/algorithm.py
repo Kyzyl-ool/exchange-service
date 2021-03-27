@@ -1,11 +1,12 @@
 import unittest
 
 from tests.environments.exchange import TestExchange
+from victor.algorithm.momentum.RSI import RSIProbabilityAlgorithm
 from victor.algorithm.momentum.bar_rotation import BarRotationAlgorithm
 from victor.algorithm.momentum.breakout import BreakoutProbabilityAlgorithm
+from victor.algorithm.momentum.complex.main import MainAlgorithm
 from victor.config import TEST_INSTRUMENT, TEST_INSTRUMENT_ID
 from victor.exchange.types import Timeframe, Candle
-from victor.algorithm.momentum import RSIProbabilityAlgorithm
 from victor.generators.generator.candle.heiken_ashi import HeikenAshi
 from victor.generators.generator.patterns.bar_rotation import BarRotationGenerator
 from victor.generators.generator.technical_indicators.momentum import RSI
@@ -86,3 +87,23 @@ class BarRotationAlgorithmTest(unittest.TestCase, TestExchange):
                     self.assertTrue(previous_sign*current_sign <= 0)
 
         self.exchange.ohlc_subscribe(TEST_INSTRUMENT_ID, Timeframe.M1, handler)
+
+
+class MainAlgorithmTest(unittest.TestCase, TestExchange):
+    def setUp(self) -> None:
+        TestExchange.__init__(self)
+        self.risk_management = Classic(stop_loss=30, take_profit=60, v0=1, instrument=TEST_INSTRUMENT)
+        self.algorithm = MainAlgorithm(self.instrument, self.risk_management)
+
+    def test_name(self):
+        self.assertEqual(self.algorithm.name, MainAlgorithm.make_name(self.instrument))
+
+    def test_logic(self):
+        TestExchange.__init__(self)
+
+        def handler(candle: Candle):
+            self.algorithm.general_pool.update_generators(candle)
+            self.exchange.update(candle)
+
+        self.exchange.ohlc_subscribe(TEST_INSTRUMENT_ID, Timeframe.M1, handler)
+

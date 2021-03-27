@@ -1,7 +1,16 @@
 from datetime import time
+from enum import Enum
 
 from victor.exchange.types import Candle, Instrument
 from victor.generators.generator import Generator
+
+
+TIME_FILTER_LENGTH = 5
+
+
+class Market(str, Enum):
+    rus = 'rus',
+    usa = 'usa'
 
 
 def time_in_range(start, end, x) -> bool:
@@ -21,3 +30,19 @@ class TimeFilter(Generator[Candle, bool]):
     def next(self, candle: Candle):
         result = time_in_range(self.from_time, self.to_time, candle['time'].time())
         self.resultDeque.append(result)
+
+
+class OnlyMarketOpening(TimeFilter):
+    def __init__(self, instrument: Instrument, first_n_hours: int, market: Market):
+        if market == Market.rus:
+            TimeFilter.__init__(self, instrument=instrument, limit=TIME_FILTER_LENGTH, from_time=time(10, 0, 0),
+                                to_time=time(10 + first_n_hours, 0, 0))
+        elif market == Market.usa:
+            TimeFilter.__init__(self, instrument=instrument, limit=TIME_FILTER_LENGTH, from_time=time(17, 30, 0),
+                                to_time=time(17 + first_n_hours, 30, 0))
+        else:
+            raise AssertionError('Недопустимый тип рынка')
+
+    @classmethod
+    def make_name(cls, instrument: Instrument, *args, **kwargs):
+        return TimeFilter.make_name(instrument, *args, **kwargs)

@@ -10,3 +10,8 @@ class TechnicalIndicator(Generator[Candle, float]):
 
     def next(self, candle: Candle):
         pass
+
+
+class ProbabilityIndicator(TechnicalIndicator):
+    pass
+
