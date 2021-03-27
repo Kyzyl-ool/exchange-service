@@ -5,7 +5,7 @@ setup(
     name="victor",
 
     # Version number (initial):
-    version="0.1.0",
+    version="0.1.1",
 
     # Application author details:
     author="Kyzyl-ool Kezhik",
@@ -13,17 +13,32 @@ setup(
 
     # Packages
     packages=[
+        "victor.algorithm",
+        "victor.algorithm.filter",
+        "victor.algorithm.momentum",
+        "victor.algorithm.momentum.bar_rotation",
+        "victor.algorithm.momentum.breakout",
+        "victor.algorithm.momentum.complex",
+        "victor.algorithm.momentum.RSI",
+        "victor.generators.generator",
+        "victor.backtest",
+        "victor.backtest.configs",
+        "victor.config",
+        "victor.exchange",
         "victor.exchange.abstract",
         "victor.exchange.finam_test",
         "victor.exchange.tinkoff",
         "victor.exchange.types",
-        "victor.utils.D",
-        "victor.utils.trade_toolkit",
         "victor.generators",
         "victor.generators.generator",
+        "victor.generators.generator.candle",
+        "victor.generators.generator.filters",
+        "victor.generators.generator.patterns",
         "victor.generators.generator.technical_indicators",
-        "victor.generators.generator_family",
-        "victor.generators.generator_set",
+        "victor.risk_management",
+        "victor.risk_management.classic",
+        "victor.risk_management.momentum",
+        "victor.trader",
     ],
 
     # Include additional files into the package
