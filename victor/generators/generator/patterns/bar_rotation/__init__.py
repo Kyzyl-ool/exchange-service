@@ -1,12 +1,13 @@
 from collections import deque
 
+from victor.config import GENERATOR_MAX_DEQUE_LENGTH
 from victor.exchange.types import Candle, Instrument
 from victor.generators.generator.candle.heiken_ashi import HeikenAshi
 from victor.generators.generator.technical_indicators import TechnicalIndicator
 
 
 class BarRotationGenerator(TechnicalIndicator):
-    def __init__(self, short: bool, instrument: Instrument, limit=None):
+    def __init__(self, short: bool, instrument: Instrument, limit=GENERATOR_MAX_DEQUE_LENGTH):
         TechnicalIndicator.__init__(self, name=BarRotationGenerator.make_name(instrument, short=short),
                                     instrument=instrument,
                                     limit=limit)

@@ -1,10 +1,11 @@
+from victor.config import GENERATOR_MAX_DEQUE_LENGTH
 from victor.exchange.types import Candle, Instrument
 from victor.generators.generator import Generator
 
 
 class HeikenAshi(Generator[Candle, Candle]):
     def __init__(self, instrument: Instrument):
-        Generator.__init__(self, name=HeikenAshi.make_name(instrument), limit=None, instrument=instrument)
+        Generator.__init__(self, name=HeikenAshi.make_name(instrument), limit=GENERATOR_MAX_DEQUE_LENGTH, instrument=instrument)
         self.open_prev = None
         self.close_prev = None
 

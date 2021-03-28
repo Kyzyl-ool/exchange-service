@@ -4,7 +4,7 @@ from tests.environments.exchange import TestExchange
 from victor.algorithm.momentum.RSI import RSIProbabilityAlgorithm
 from victor.algorithm.momentum.bar_rotation import BarRotationAlgorithm
 from victor.algorithm.momentum.breakout import BreakoutProbabilityAlgorithm
-from victor.algorithm.momentum.complex.main import MainAlgorithm
+from victor.algorithm.momentum.complex import MainAlgorithm
 from victor.config import TEST_INSTRUMENT, TEST_INSTRUMENT_ID
 from victor.exchange.types import Timeframe, Candle
 from victor.generators.generator.candle.heiken_ashi import HeikenAshi

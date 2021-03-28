@@ -5,9 +5,10 @@ import numpy as np
 
 from tests.environments.exchange import TestExchange
 from victor.algorithm.momentum.RSI import RSIProbabilityAlgorithm
-from victor.algorithm.momentum.complex.main import MainAlgorithm
+from victor.algorithm.momentum.complex import MainAlgorithm
 from victor.config import TEST_INSTRUMENT_ID, TEST_INSTRUMENT
 from victor.exchange.types import Candle, Timeframe, MarketOrderRequest
+from victor.generators.generator.filters.time_filter import Market
 from victor.generators.generator.technical_indicators.momentum import RSI
 from victor.risk_management.classic import Classic
 from victor.risk_management.momentum import MomentumRiskManagement
@@ -114,18 +115,19 @@ class TraderTest(unittest.TestCase, TestExchange):
 
     def test_trader_with_momentum_risk_management(self):
         self.risk_management = MomentumRiskManagement(
-            stop_loss=30,
+            stop_loss=40,
+            d=100,
             instrument=TEST_INSTRUMENT,
             alpha=0.2,
-            d=60,
-            take_profit=60,
-            v0=5,
+            v0=1000,
         )
         self.trader = Trader(
             algorithms=[
                 MainAlgorithm(
                     instrument=TEST_INSTRUMENT,
                     risk_management=self.risk_management,
+                    market=Market.usa,
+                    first_n_hours=1
                 )
             ],
             exchange=self.exchange,

@@ -1,3 +1,4 @@
+from victor.config import GENERATOR_MAX_DEQUE_LENGTH
 from victor.exchange.types import Candle, Instrument
 from victor.generators.generator.candle.candle_aggregator import CandleAggregator
 from victor.generators.generator.technical_indicators import TechnicalIndicator
@@ -6,7 +7,7 @@ from victor.generators.generator.technical_indicators import TechnicalIndicator
 class Breakout(TechnicalIndicator):
     def __init__(self, n: int, m: int, instrument: Instrument):
         TechnicalIndicator.__init__(self, name=Breakout.make_name(instrument, n=n, m=m), instrument=instrument,
-                                    limit=None)
+                                    limit=GENERATOR_MAX_DEQUE_LENGTH)
         self._add_dependency(CandleAggregator(n=n, instrument=instrument))
 
         self.m = m  # сила уровня

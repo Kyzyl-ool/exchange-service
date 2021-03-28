@@ -1,6 +1,7 @@
 import functools
 from typing import List
 
+from victor.config import GENERATOR_MAX_DEQUE_LENGTH
 from victor.exchange.types import Candle, Instrument
 from victor.generators.generator import Generator
 
@@ -13,7 +14,7 @@ class CandleAggregator(Generator[Candle, Candle]):
     def __init__(self, n: int, instrument: Instrument):
         assert (n > 0)
 
-        Generator.__init__(self, name=self.make_name(instrument, n), limit=None, instrument=instrument)
+        Generator.__init__(self, name=self.make_name(instrument, n), limit=GENERATOR_MAX_DEQUE_LENGTH, instrument=instrument)
         self.n = n
         self.k = 0
         self.buffer = []

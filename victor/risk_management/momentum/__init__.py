@@ -59,11 +59,10 @@ class MomentumRule(Rule):
 
 
 class MomentumRiskManagement(RiskManagement[MomentumRule]):
-    def __init__(self, stop_loss: float, take_profit: float, v0: float, instrument: Instrument, alpha: float, d: float):
+    def __init__(self, stop_loss: float, v0: float, instrument: Instrument, alpha: float, d: float):
         RiskManagement.__init__(self, v0=v0, instrument=instrument)
 
         self.stop_loss = stop_loss
-        self.take_profit = take_profit
         self.alpha = alpha
         self.d = d
 

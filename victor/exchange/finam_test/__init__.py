@@ -38,8 +38,13 @@ class FinamExchangeTestClient(AbstractExchangeClient):
         :param run_immediately
         :return:
         """
-        self.df = pd.read_csv(instrument_id)
+        self.df = pd.read_csv(instrument_id, dtype=str)
         self.df = D.add_col(self.df, '<DATETIME>', D.make_datetime(self.df))
+        self.df['<CLOSE>'] = pd.to_numeric(self.df['<CLOSE>'])
+        self.df['<HIGH>'] = pd.to_numeric(self.df['<HIGH>'])
+        self.df['<LOW>'] = pd.to_numeric(self.df['<LOW>'])
+        self.df['<VOL>'] = pd.to_numeric(self.df['<VOL>'])
+        self.df['<OPEN>'] = pd.to_numeric(self.df['<OPEN>'])
         self.df['<DATETIME>'] -= datetime.timedelta(minutes=1)
         self.handler = handler
 
