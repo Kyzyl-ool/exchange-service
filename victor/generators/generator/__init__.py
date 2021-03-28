@@ -3,7 +3,7 @@ from __future__ import annotations
 from collections import deque
 from typing import Generic, TypeVar, Union
 
-from victor.config import GENERATOR_MAX_DEQUE_LENGTH
+from victor.config import GENERATOR_MAX_DEQUE_LENGTH, GENERATOR_LOGGING_MODE
 from victor.exchange.types import Instrument
 from victor.generators import GeneralPool
 

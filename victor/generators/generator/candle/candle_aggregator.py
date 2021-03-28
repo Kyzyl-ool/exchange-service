@@ -14,15 +14,10 @@ class CandleAggregator(Generator[Candle, Candle]):
     def __init__(self, n: int, instrument: Instrument):
         assert (n > 0)
 
-        Generator.__init__(self, name=self.make_name(instrument, n), limit=GENERATOR_MAX_DEQUE_LENGTH, instrument=instrument)
+        Generator.__init__(self, name=CandleAggregator.make_name(instrument, n=n), limit=GENERATOR_MAX_DEQUE_LENGTH, instrument=instrument)
         self.n = n
         self.k = 0
         self.buffer = []
-
-    @staticmethod
-    def make_name(instrument: Instrument, n: int):
-        instrument_id = instrument['id']
-        return f'candle-aggregator({instrument_id}, {n})'
 
     def __get_next(self, close, open, high, low, volume, time):
         if self.k == self.n:

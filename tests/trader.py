@@ -1,4 +1,5 @@
 import logging
+import pickle
 import unittest
 
 import numpy as np
@@ -156,3 +157,10 @@ class TraderTest(unittest.TestCase, TestExchange):
 
         self.assertEqual(len(self.exchange.orders) - len(self.exchange.active_orders),
                          len(self.exchange.portfolio.log))
+
+        fo = open('results.portfolio', 'wb')
+        pickle.dump(self.exchange.portfolio, fo)
+        fo.close()
+        fo = open('generators', 'wb')
+        pickle.dump(self.trader.general_pool.get_generators_log(), fo)
+        fo.close()
