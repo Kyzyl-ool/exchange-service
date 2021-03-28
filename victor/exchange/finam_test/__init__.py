@@ -1,4 +1,5 @@
 import logging
+import pickle
 
 from victor.exchange.abstract import AbstractExchangeClient
 from victor.exchange.types import Candle, Timeframe, OrderState, LimitOrderRequest, MarketOrderRequest
@@ -26,6 +27,10 @@ class FinamExchangeTestClient(AbstractExchangeClient):
         self.order_index = -1
         self.fixed_comission = fixed_comission
 
+    @staticmethod
+    def __df_file_name(instrument_id: str):
+        return f'{instrument_id}.df'
+
     def ohlc_subscribe(self, instrument_id: str, timeframe: Timeframe, handler: Callable[[Candle], None],
                        run_immediately=True):
         """
@@ -38,14 +43,23 @@ class FinamExchangeTestClient(AbstractExchangeClient):
         :param run_immediately
         :return:
         """
-        self.df = pd.read_csv(instrument_id, dtype=str)
-        self.df = D.add_col(self.df, '<DATETIME>', D.make_datetime(self.df))
-        self.df['<CLOSE>'] = pd.to_numeric(self.df['<CLOSE>'])
-        self.df['<HIGH>'] = pd.to_numeric(self.df['<HIGH>'])
-        self.df['<LOW>'] = pd.to_numeric(self.df['<LOW>'])
-        self.df['<VOL>'] = pd.to_numeric(self.df['<VOL>'])
-        self.df['<OPEN>'] = pd.to_numeric(self.df['<OPEN>'])
-        self.df['<DATETIME>'] -= datetime.timedelta(minutes=1)
+        try:
+            fi = open(self.__df_file_name(instrument_id), 'rb')
+            self.df = pickle.load(fi)
+            fi.close()
+        except IOError:
+            self.df = pd.read_csv(instrument_id, dtype=str)
+            self.df = D.add_col(self.df, '<DATETIME>', D.make_datetime(self.df))
+            self.df['<CLOSE>'] = pd.to_numeric(self.df['<CLOSE>'])
+            self.df['<HIGH>'] = pd.to_numeric(self.df['<HIGH>'])
+            self.df['<LOW>'] = pd.to_numeric(self.df['<LOW>'])
+            self.df['<VOL>'] = pd.to_numeric(self.df['<VOL>'])
+            self.df['<OPEN>'] = pd.to_numeric(self.df['<OPEN>'])
+            self.df['<DATETIME>'] -= datetime.timedelta(minutes=1)
+            fo = open(self.__df_file_name(instrument_id), 'wb')
+            pickle.dump(self.df, fo)
+            fo.close()
+
         self.handler = handler
 
         if run_immediately:

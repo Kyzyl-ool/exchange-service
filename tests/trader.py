@@ -126,8 +126,7 @@ class TraderTest(unittest.TestCase, TestExchange):
                 MainAlgorithm(
                     instrument=TEST_INSTRUMENT,
                     risk_management=self.risk_management,
-                    market=Market.usa,
-                    first_n_hours=1
+                    market=Market.usa
                 )
             ],
             exchange=self.exchange,

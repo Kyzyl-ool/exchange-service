@@ -15,14 +15,14 @@ EMA_N = 233
 
 
 class MainAlgorithm(ProbabilityAlgorithm):
-    def __init__(self, instrument: Instrument, risk_management: RiskManagement, market: Market, first_n_hours):
+    def __init__(self, instrument: Instrument, risk_management: RiskManagement, market: Market):
         ProbabilityAlgorithm.__init__(self, MainAlgorithm.make_name(instrument), risk_management, instrument)
 
         self.short = False
 
         self._add_dependency(BarRotationGenerator(self.short, instrument, limit=GENERATOR_MAX_DEQUE_LENGTH))
         self._add_dependency(Breakout(n=N, m=M, instrument=instrument))
-        self._add_dependency(OnlyMarketOpening(instrument, first_n_hours, market))
+        self._add_dependency(OnlyMarketOpening(instrument, market))
         ema_generator = EMA(EMA_N, None, instrument, GENERATOR_MAX_DEQUE_LENGTH, 'close')
         self._add_dependency(ema_generator)
         ema_generator_name = ema_generator.name
@@ -39,10 +39,10 @@ class MainAlgorithm(ProbabilityAlgorithm):
     def _probability(self) -> float:
         bar_rotation = self.bar_rotation.value()
         breakout = self.breakout.value()
-        time_filter = self.time_filter.value()
+        delta_min = self.time_filter.value()
         ema_dev_value = self.ema_dev.value()
 
-        if bar_rotation > 0 and breakout > 0 and time_filter and ema_dev_value > 0:
+        if bar_rotation > 0 and breakout > 0 and 15 <= delta_min <= 60 and ema_dev_value > 0:
             return 1
         else:
             return 0

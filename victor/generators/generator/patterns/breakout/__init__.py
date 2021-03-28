@@ -8,22 +8,45 @@ class Breakout(TechnicalIndicator):
     def __init__(self, n: int, m: int, instrument: Instrument):
         TechnicalIndicator.__init__(self, name=Breakout.make_name(instrument, n=n, m=m), instrument=instrument,
                                     limit=GENERATOR_MAX_DEQUE_LENGTH)
+
         self._add_dependency(CandleAggregator(n=n, instrument=instrument))
+        self.candle_aggregator = self.general_pool.select_generator(CandleAggregator, instrument, n=n)
 
         self.m = m  # сила уровня
         self.n = n
 
-        self.levels = []
+        self.levels = {}
         self.broken_levels = []
+
+    def __filter_func(self, level):
+        candles = list(self.candle_aggregator.resultDeque)
+
+        index = level['i']
+        n = self.m
+        qualifyable = n <= index < len(candles) - n
+
+        qualified_level = None
+
+        if qualifyable:
+            qualified_level = sorted(candles[index - n:index],
+                                     key=lambda x: x['high']) == candles[
+                                                                 index - n:index] and sorted(
+                candles[index + 1:index + n + 1], key=lambda x: x['high'],
+                reverse=True) == candles[
+                                 index + 1:index + n + 1]
+        else:
+            qualified_level = True
+
+        return qualified_level
 
     def next(self, candle: Candle):
         for level in self.broken_levels:
-            self.levels.remove(level)
+            del self.levels[level['id']]
         self.broken_levels.clear()
 
-        candle_aggregator = self.general_pool.get_generator(CandleAggregator.make_name(self.instrument, n=self.n))
+        candle_aggregator = self.candle_aggregator
 
-        candle_aggregated = candle_aggregator.next(candle)
+        candle_aggregated = candle_aggregator.value()
 
         if candle_aggregated:
             c = candle_aggregated['close']
@@ -33,33 +56,15 @@ class Breakout(TechnicalIndicator):
             v = candle_aggregated['volume']
             t = candle_aggregated['time']
 
-            candles = list(candle_aggregator.resultDeque)
-
             co_max = max(c, o)
 
-            def filter_func(level):
-                index = level['i']
-                n = self.m
-                qualifyable = n <= index < len(candles) - n
-
-                qualified_level = None
-
-                if qualifyable:
-                    qualified_level = sorted(candles[index - n:index],
-                                             key=lambda x: x['high']) == candles[
-                                                                         index - n:index] and sorted(
-                        candles[index + 1:index + n + 1], key=lambda x: x['high'],
-                        reverse=True) == candles[
-                                         index + 1:index + n + 1]
-                else:
-                    qualified_level = True
-
-                return qualified_level
-
-            self.levels = list(filter(filter_func, self.levels))
+            new_levels = {}
+            for x in filter(self.__filter_func, self.levels.values()):
+                new_levels[x['id']] = x
+            self.levels = new_levels
 
             # обнолвние уровней
-            for level in self.levels:
+            for level in self.levels.values():
                 d1 = level['d1']
                 d2 = level['d2']
 
@@ -69,15 +74,16 @@ class Breakout(TechnicalIndicator):
                     if co_max > d1:
                         level['d1'] = max(d1, co_max)
 
-            self.levels.append({
+            self.levels[len(self.levels)] = {
                 'd1': co_max,
                 'd2': h,
                 'time': t,
-                'i': len(candles) - 1
-            })
+                'i': len(self.candle_aggregator.resultDeque) - 1,
+                'id': len(self.levels)
+            }
 
         # определяем, есть ли пробой
-        for level in self.levels:
+        for level in self.levels.values():
             d2 = level['d2']
 
             if candle['close'] > d2:

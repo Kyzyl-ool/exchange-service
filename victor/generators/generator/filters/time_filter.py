@@ -1,9 +1,10 @@
 from datetime import time
 from enum import Enum
 
+from victor.config import GENERATOR_MAX_DEQUE_LENGTH
 from victor.exchange.types import Candle, Instrument
 from victor.generators.generator import Generator
-
+from victor.generators.generator.technical_indicators import TechnicalIndicator
 
 TIME_FILTER_LENGTH = 5
 
@@ -32,17 +33,16 @@ class TimeFilter(Generator[Candle, bool]):
         self.resultDeque.append(result)
 
 
-class OnlyMarketOpening(TimeFilter):
-    def __init__(self, instrument: Instrument, first_n_hours: int, market: Market):
-        if market == Market.rus:
-            TimeFilter.__init__(self, instrument=instrument, limit=TIME_FILTER_LENGTH, from_time=time(10, 0, 0),
-                                to_time=time(10 + first_n_hours, 0, 0))
-        elif market == Market.usa:
-            TimeFilter.__init__(self, instrument=instrument, limit=TIME_FILTER_LENGTH, from_time=time(17, 30, 0),
-                                to_time=time(17 + first_n_hours, 30, 0))
-        else:
-            raise AssertionError('Недопустимый тип рынка')
+class OnlyMarketOpening(TechnicalIndicator):
+    def __init__(self, instrument: Instrument, market: Market):
+        TechnicalIndicator.__init__(self, OnlyMarketOpening.make_name(instrument), instrument, GENERATOR_MAX_DEQUE_LENGTH)
+        self.market = market
 
-    @classmethod
-    def make_name(cls, instrument: Instrument, *args, **kwargs):
-        return TimeFilter.make_name(instrument, *args, **kwargs)
+    def next(self, candle: Candle):
+        x = candle['time']
+        if self.market == Market.usa:
+            delta_min = x.time().minute + (x.time().hour - (17.5 if x.month >= 4 else 16.5)) * 60
+        else:
+            delta_min = x.time().minute + (x.time().hour - 10) * 60
+
+        self.resultDeque.append(delta_min)
