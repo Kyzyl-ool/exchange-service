@@ -4,8 +4,9 @@ from decimal import Decimal
 
 from victor.config import TINKOFF_SANDBOX_TOKEN
 from victor.exchange.abstract import AbstractExchangeClient
-from victor.exchange.types import Timeframe, Candle, LimitOrderRequest, MarketOrderRequest, Order, OrderState
-from typing import Callable, Dict, List, Coroutine
+from victor.exchange.types import Timeframe, Candle, LimitOrderRequest, MarketOrderRequest, Order, OrderState, \
+    Instrument
+from typing import Callable, Dict, List
 import tinvest as ti
 import asyncio
 import os
@@ -135,3 +136,18 @@ class TinkoffExchangeClient(AbstractExchangeClient):
 
         await self.async_client.close()
         await self.streaming.stop()
+
+    async def preload_candles(self, instrument: Instrument, from_: datetime, to: datetime, timeframe: Timeframe) -> List[Candle]:
+        result = []
+        delta = timedelta(hours=23, minutes=59)
+        t0 = from_
+        t1 = from_ + delta
+        while abs(t1 - t0) >= delta:
+            batch = await self.async_client.get_market_candles(instrument['id'], t0, t1, timeframe_mapping[timeframe])
+            result += batch.payload.candles
+            t0 = t1 + timedelta(minutes=1)
+            t1 = min(to, t0 + delta)
+        result += (await self.async_client.get_market_candles(instrument['id'], t0, t1, timeframe_mapping[timeframe])).payload.candles
+
+        logging.debug('CANDLES PRELOADED')
+        return list(map(candle_mapping, result))

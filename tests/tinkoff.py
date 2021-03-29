@@ -1,5 +1,6 @@
 import logging
 import unittest
+from datetime import datetime, timedelta
 
 from victor.algorithm.momentum.complex import MainAlgorithm
 from victor.exchange.tinkoff import TinkoffExchangeClient
@@ -79,6 +80,8 @@ class TinkoffTest(unittest.IsolatedAsyncioTestCase):
             trader.general_pool.update_generators(candle)
             trader.perform_signals(candle)
             logging.debug(candle)
+
+        await self.exchange.preload_candles(instrument, datetime.now() - timedelta(days=3, minutes=30), datetime.now(), Timeframe.M5)
 
         await self.exchange.ohlc_subscribe('BBG004730RP0', Timeframe.M5, handler)
 

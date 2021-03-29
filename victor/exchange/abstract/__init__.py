@@ -1,4 +1,6 @@
-from victor.exchange.types import Candle, Timeframe, OrderState, LimitOrderRequest, MarketOrderRequest
+from datetime import datetime
+
+from victor.exchange.types import Candle, Timeframe, OrderState, LimitOrderRequest, MarketOrderRequest, Instrument
 from typing import Callable, Dict, Coroutine
 
 
@@ -52,4 +54,7 @@ class AbstractExchangeClient:
         return result - comission, comission
 
     def close_connections(self):
+        raise NotImplementedError
+
+    def preload_candles(self, instrument: Instrument, from_: datetime, to: datetime, timeframe: Timeframe):
         raise NotImplementedError

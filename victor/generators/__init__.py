@@ -48,13 +48,19 @@ class GeneralPool(object):
         elif self.__is_same_time(candle['time'], self.__last_time):
             return
 
-        for generator in self.__generators.values():
-            generator.next(candle)
-            if GENERATOR_LOGGING_MODE:
-                self.__generators_log[generator.name].append(generator.value())
-
-        self.__last_time = candle['time']
+        self.__load_candles([candle])
         logging.debug('GENERATORS UPDATED')
+
+    def __load_candles(self, candles: List[Candle]):
+        for candle in candles:
+            for generator in self.__generators.values():
+                generator.next(candle)
+                if GENERATOR_LOGGING_MODE:
+                    self.__generators_log[generator.name].append(generator.value())
+        self.__last_time = candles[-1]['time']
+
+    def preload_candles(self, candles: List[Candle]):
+        self.__load_candles(candles)
 
     @staticmethod
     def __is_same_time(t1: datetime, t2: datetime):
