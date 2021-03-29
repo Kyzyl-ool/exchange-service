@@ -4,7 +4,6 @@ import logging
 from datetime import datetime, timedelta
 
 from flask import Flask
-from celery import Celery
 
 from victor.algorithm.momentum.complex import MainAlgorithm
 from victor.exchange.tinkoff import TinkoffExchangeClient
