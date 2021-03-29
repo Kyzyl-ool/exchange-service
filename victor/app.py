@@ -1,7 +1,6 @@
-from dotenv import load_dotenv
-
 import logging
 from datetime import datetime, timedelta
+from dotenv import load_dotenv
 
 from flask import Flask
 
@@ -11,13 +10,10 @@ from victor.exchange.types import Instrument, Candle, Timeframe
 from victor.generators.generator.filters.time_filter import Market
 from victor.risk_management.momentum import MomentumRiskManagement
 from victor.trader import Trader
-from threading import Thread
 
 import asyncio
 
 load_dotenv()
-
-app = Flask(__name__)
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -73,23 +69,9 @@ class Runner:
 
 runner = Runner()
 
-
-def run():
-    runner.run_sync()
-
-
-def run_flask():
-    app.run()
+app = Flask(__name__)
 
 
 @app.route('/')
 def get_data():
     return runner.trader.general_pool.get_generators_log()
-
-
-if __name__ == '__main__':
-    thread = Thread(target=run)
-    thread.start()
-
-    thread2 = Thread(target=run_flask)
-    thread2.start()
