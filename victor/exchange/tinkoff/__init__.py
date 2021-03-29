@@ -5,7 +5,7 @@ from decimal import Decimal
 from victor.config import TINKOFF_SANDBOX_TOKEN
 from victor.exchange.abstract import AbstractExchangeClient
 from victor.exchange.types import Timeframe, Candle, LimitOrderRequest, MarketOrderRequest, Order, OrderState
-from typing import Callable, Dict, List
+from typing import Callable, Dict, List, Coroutine
 import tinvest as ti
 import asyncio
 import os
@@ -66,6 +66,8 @@ class TinkoffExchangeClient(AbstractExchangeClient):
         streaming = self.streaming
         assert instrument_id not in self.subscried_candles
         await streaming.candle.subscribe(instrument_id, self.map_timeframe(timeframe))
+        self.subscried_candles[instrument_id] = timeframe
+        logging.debug(f'Subscribed to {instrument_id} candle updates')
         async for event in streaming:
             handler(candle_mapping(event.payload))
 
@@ -75,6 +77,7 @@ class TinkoffExchangeClient(AbstractExchangeClient):
         return timeframe_mapping[timeframe]
 
     async def limit_order(self, order: LimitOrderRequest) -> str:
+        logging.debug('LIMIT ORDER:', order)
         body = ti.LimitOrderRequest(
             lots=int(order['volume']),
             operation='Buy' if order['buy'] else 'Sell',
@@ -92,6 +95,7 @@ class TinkoffExchangeClient(AbstractExchangeClient):
         return order_id
 
     async def market_order(self, order: MarketOrderRequest) -> str:
+        logging.debug('MARKET ORDER:', order)
         body = ti.MarketOrderRequest(
             lots=int(order['volume']),
             operation='Buy' if order['buy'] else 'Sell',

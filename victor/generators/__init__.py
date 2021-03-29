@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+from datetime import datetime, timedelta
 from typing import Dict, Any, Type, List
 
 from victor.config import GENERATOR_LOGGING_MODE
@@ -11,6 +12,7 @@ class GeneralPool(object):
     __instance = None
     __generators: Dict[str, Any] = {}
     __generators_log: Dict[str, List[Any]] = {}
+    __last_time: datetime = None
 
     @classmethod
     def getInstance(cls):
@@ -41,10 +43,20 @@ class GeneralPool(object):
         return self.__generators[generator.make_name(instrument, *args, **kwargs)]
 
     def update_generators(self, candle: Candle):
+        if self.__last_time is None:
+            self.__last_time = candle['time']
+        elif self.__is_same_time(candle['time'], self.__last_time):
+            return
+
         for generator in self.__generators.values():
             generator.next(candle)
             if GENERATOR_LOGGING_MODE:
                 self.__generators_log[generator.name].append(generator.value())
 
+        self.__last_time = candle['time']
+        logging.debug('GENERATORS UPDATED')
 
+    @staticmethod
+    def __is_same_time(t1: datetime, t2: datetime):
+        return abs(t1 - t2) < timedelta(minutes=1)
 

@@ -1,5 +1,5 @@
 from victor.exchange.types import Candle, Timeframe, OrderState, LimitOrderRequest, MarketOrderRequest
-from typing import Callable, Dict
+from typing import Callable, Dict, Coroutine
 
 
 class AbstractExchangeClient:
@@ -27,7 +27,7 @@ class AbstractExchangeClient:
     def cancel_order(self, order_id: str):
         raise NotImplementedError()
 
-    def update(self, candle: Candle) -> None:
+    def update(self, candle: Candle) -> Coroutine:
         raise NotImplementedError()
 
     def financial_result(self, candle: Candle) -> (float, float):

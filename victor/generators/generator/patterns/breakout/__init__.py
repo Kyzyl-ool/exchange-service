@@ -94,6 +94,6 @@ class Breakout(TechnicalIndicator):
     def norm(self, w=1.0, bias=0.01):
         result = 0
         for item in self.broken_levels:
-            return (item['d2'] - item['d1']) * w + bias
+            result += (item['d2'] - item['d1']) * w + bias
 
         return result
