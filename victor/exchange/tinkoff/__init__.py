@@ -2,7 +2,7 @@ import logging
 from datetime import datetime, timedelta
 from decimal import Decimal
 
-from victor.config import TINKOFF_SANDBOX_TOKEN
+from victor.config import TINKOFF_TOKEN
 from victor.exchange.abstract import AbstractExchangeClient
 from victor.exchange.types import Timeframe, Candle, LimitOrderRequest, MarketOrderRequest, Order, OrderState, \
     Instrument
@@ -44,17 +44,17 @@ class TinkoffExchangeClient(AbstractExchangeClient):
         self.subscried_candles = {}
 
     async def init(self):
-        self.async_client = ti.AsyncClient(os.environ[TINKOFF_SANDBOX_TOKEN], use_sandbox=True)
-        self.streaming = ti.Streaming(os.environ[TINKOFF_SANDBOX_TOKEN])
+        self.async_client = ti.AsyncClient(os.environ[TINKOFF_TOKEN], use_sandbox=False)
+        self.streaming = ti.Streaming(os.environ[TINKOFF_TOKEN])
         await self.streaming.start()
 
         result = await self.async_client.get_accounts()
         self.accounts = result.payload.accounts
-        body = ti.SandboxSetCurrencyBalanceRequest(
-            balance=100000,
-            currency='RUB',
-        )
-        await self.async_client.set_sandbox_currencies_balance(body)
+        # body = ti.SandboxSetCurrencyBalanceRequest(
+        #     balance=100000,
+        #     currency='RUB',
+        # )
+        # await self.async_client.set_sandbox_currencies_balance(body)
 
     async def ohlc_subscribe(self, instrument_id: str, timeframe: Timeframe, handler: Callable[[Candle], None]):
         """
