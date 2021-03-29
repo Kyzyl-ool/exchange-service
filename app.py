@@ -1,5 +1,7 @@
 import logging
 from datetime import datetime, timedelta
+from threading import Thread
+
 from dotenv import load_dotenv
 
 from flask import Flask
@@ -75,3 +77,9 @@ app = Flask(__name__)
 @app.route('/')
 def get_data():
     return runner.trader.general_pool.get_generators_log()
+
+
+if __name__ == '__main__':
+    thread = Thread(target=runner.run_sync)
+    thread.start()
+    app.run()

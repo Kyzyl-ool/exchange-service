@@ -1,5 +1,5 @@
 from threading import Thread
-from victor.app import app, runner
+from app import app, runner
 from gevent.pywsgi import WSGIServer
 
 if __name__ == '__main__':
