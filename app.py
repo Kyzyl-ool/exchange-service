@@ -19,8 +19,6 @@ load_dotenv()
 
 app = Flask(__name__)
 broker_url = 'amqp://myuser:mypassword@localhost:5672/myvhost'
-celery_instance = Celery(app.name, broker=broker_url)
-celery_instance.conf.update(app.config)
 
 logging.basicConfig(level=logging.DEBUG)
 
