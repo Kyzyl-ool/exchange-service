@@ -61,9 +61,10 @@ class Runner:
         await self.exchange.init()
 
     async def run(self):
-        await self.exchange.preload_candles(self.instrument, datetime.now() - timedelta(days=3, minutes=30),
-                                            datetime.now(),
-                                            Timeframe.M5)
+        self.trader.general_pool.preload_candles(
+            await self.exchange.preload_candles(self.instrument, datetime.now() - timedelta(days=3, minutes=30),
+                                                datetime.now(),
+                                                Timeframe.M5))
         await self.exchange.ohlc_subscribe('BBG004730RP0', Timeframe.M5, self.handler)
 
     def run_sync(self):
@@ -82,10 +83,14 @@ def run_flask():
     app.run()
 
 
+@app.route('/')
+def get_data():
+    return runner.trader.general_pool.get_generators_log()
+
+
 if __name__ == '__main__':
     thread = Thread(target=run)
     thread.start()
 
     thread2 = Thread(target=run_flask)
     thread2.start()
-
