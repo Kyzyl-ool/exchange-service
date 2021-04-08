@@ -28,6 +28,15 @@ class Trader:
     def get_algorithm(self, algorithm: Type[Algorithm], instrument: Instrument):
         return self.algorithms[algorithm.make_name(instrument)]
 
+    def close_all_orders(self):
+        orders = []
+        for active_rule in self.active_rules:
+            orders.append(active_rule.exit_force())
+        self.active_rules = []
+
+        for order in orders:
+            self.exchange.market_order(order)
+
     def perform_rule(self, rule: Rule, candle: Candle) -> None:
         limit_order = rule.enter_order(candle)
         limit_order_id = self.exchange.limit_order(limit_order)

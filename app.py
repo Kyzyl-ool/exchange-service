@@ -59,7 +59,7 @@ class Runner:
 
     async def run(self):
         self.trader.general_pool.preload_candles(
-            await self.exchange.preload_candles(self.instrument, datetime.now() - timedelta(days=3, minutes=30),
+            await self.exchange.preload_candles(self.instrument, datetime.now() - timedelta(days=60, minutes=30),
                                                 datetime.now(),
                                                 Timeframe.M5))
         await self.exchange.ohlc_subscribe('BBG004730RP0', Timeframe.M5, self.handler)

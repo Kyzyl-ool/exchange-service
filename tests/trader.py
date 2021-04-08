@@ -1,6 +1,7 @@
 import logging
 import pickle
 import unittest
+from datetime import time, datetime
 
 import numpy as np
 
@@ -138,6 +139,9 @@ class TraderTest(unittest.TestCase, TestExchange):
             self.trader.general_pool.update_generators(candle)
             self.trader.exchange.update(candle)
             self.trader.perform_signals(candle)
+
+            if candle['time'] >= datetime.combine(candle['time'], time(hour=18)):
+                self.trader.close_all_orders()
 
         self.exchange.ohlc_subscribe(TEST_INSTRUMENT_ID, Timeframe.M1, handler)
 

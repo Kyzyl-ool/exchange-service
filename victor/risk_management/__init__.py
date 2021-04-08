@@ -38,7 +38,7 @@ class Rule:
             price=candle['close']
         )
 
-    def exit_force(self):
+    def exit_force(self) -> MarketOrderRequest:
         raise NotImplementedError('Необходимо унаследовать этот класс и реализовать этот метод')
 
     def is_order_would_fulfilled(self, candle: Candle):
