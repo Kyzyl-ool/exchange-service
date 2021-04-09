@@ -42,7 +42,7 @@ class MainAlgorithm(ProbabilityAlgorithm):
         delta_min = self.time_filter.value()
         ema_dev_value = self.ema_dev.value()
 
-        if bar_rotation > 0 and breakout > 0 and 15 <= delta_min <= 60 and ema_dev_value > 0:
+        if bar_rotation > 15 and breakout > 1 and 15 <= delta_min <= 60 and ema_dev_value > 0:
             return 1
         else:
             return 0
