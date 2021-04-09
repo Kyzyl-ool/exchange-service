@@ -9,6 +9,7 @@ from tests.environments.exchange import TestExchange
 from victor.algorithm.momentum.RSI import RSIProbabilityAlgorithm
 from victor.algorithm.momentum.complex import MainAlgorithm
 from victor.config import TEST_INSTRUMENT_ID, TEST_INSTRUMENT
+from victor.exchange.binance import BinanceExchange
 from victor.exchange.types import Candle, Timeframe, MarketOrderRequest
 from victor.generators.generator.filters.time_filter import Market
 from victor.generators.generator.technical_indicators.momentum import RSI
@@ -168,3 +169,10 @@ class TraderTest(unittest.TestCase, TestExchange):
         fo = open('generators', 'wb')
         pickle.dump(self.trader.general_pool.get_generators_log(), fo)
         fo.close()
+
+    def test_binance(self):
+        def process(msg):
+            print(msg)
+        binance = BinanceExchange()
+        binance.run_depth(process)
+        binance.close_connections()
