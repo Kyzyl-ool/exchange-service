@@ -117,7 +117,7 @@ class TraderTest(unittest.TestCase, TestExchange):
 
     def test_trader_with_momentum_risk_management(self):
         self.risk_management = MomentumRiskManagement(
-            stop_loss=40,
+            stop_loss=60,
             d=100,
             instrument=TEST_INSTRUMENT,
             alpha=0.2,
@@ -132,7 +132,7 @@ class TraderTest(unittest.TestCase, TestExchange):
                 )
             ],
             exchange=self.exchange,
-            max_orders=1
+            max_orders=2
         )
 
         def handler(candle: Candle):
@@ -140,8 +140,8 @@ class TraderTest(unittest.TestCase, TestExchange):
             self.trader.exchange.update(candle)
             self.trader.perform_signals(candle)
 
-            if candle['time'] >= datetime.combine(candle['time'], time(hour=18)):
-                self.trader.close_all_orders()
+            # if candle['time'] >= datetime.combine(candle['time'], time(hour=18)):
+            #     self.trader.close_all_orders()
 
         self.exchange.ohlc_subscribe(TEST_INSTRUMENT_ID, Timeframe.M1, handler)
 

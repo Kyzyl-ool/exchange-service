@@ -1,3 +1,4 @@
+from functools import reduce
 from typing import Dict, List, Union, Type
 
 from victor.algorithm import Algorithm
@@ -80,17 +81,9 @@ class Trader:
         #  Мержим все рыночные заявки
         for market_orders_id in market_orders:
             if len(market_orders[market_orders_id]) > 1:
-                buy_reduced, volume_reduced = market_orders[market_orders_id][0]
-                if not buy_reduced:
-                    volume_reduced = -volume_reduced
-                for market_order in market_orders[market_orders_id]:
-                    buy, volume = market_order.values()
-                    if buy:
-                        volume_reduced += volume
-                    else:
-                        volume_reduced -= volume
-                if volume_reduced < 0:
-                    buy_reduced = False
+                volume_reduced = reduce(lambda prev, el: prev + (el['volume'] if el['buy'] else -el['volume']), market_orders[market_orders_id], 0)
+                buy_reduced = volume_reduced > 0
+                volume_reduced = abs(volume_reduced)
 
                 punct = market_orders[market_orders_id][0]['punct']
                 market_orders[market_orders_id] = [
