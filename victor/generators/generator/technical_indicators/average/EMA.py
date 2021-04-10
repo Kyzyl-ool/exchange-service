@@ -9,6 +9,9 @@ class EMA(TechnicalIndicator):
     N: int
     target_generator_name: str
 
+    correct: bool
+    __n_calls: int
+
     def __init__(self, n: int, target_generator_name: Optional[str], instrument: Instrument, limit: int,
                  use_candle=None):
         """
@@ -17,9 +20,11 @@ class EMA(TechnicalIndicator):
         generator_name = EMA.make_name(instrument, target_generator_name=target_generator_name, n=n,
                                        use_candle=use_candle)
 
-        TechnicalIndicator.__init__(self, name=generator_name, instrument=instrument, limit=limit)
+        TechnicalIndicator.__init__(self, name=generator_name, instrument=instrument, limit=limit, fr=0)
 
         self.N = n
+        self.correct = False
+        self.__n_calls = 0
         self.target_generator_name = target_generator_name
         self.use_candle = use_candle
 
@@ -33,8 +38,10 @@ class EMA(TechnicalIndicator):
         k = 2 / (self.N + 1)
 
         result = current_value * k + previous_value * (1 - k)
+        self.__n_calls += 1
+        self.correct = self.__n_calls > self.N*10
 
-        self.resultDeque.append(result)
+        super()._apply_new_value(result)
 
 
 EMADeviationType = Union['close']
@@ -42,7 +49,7 @@ EMADeviationType = Union['close']
 
 class EMADeviation(TechnicalIndicator):
     def __init__(self, ema_generator_name: str, instrument: Instrument, limit: int, target_value_func: Callable[[Candle], float]):
-        TechnicalIndicator.__init__(self, EMADeviation.make_name(instrument), instrument, limit=limit)
+        TechnicalIndicator.__init__(self, EMADeviation.make_name(instrument), instrument, limit=limit, fr=0)
 
         self.ema_generator_name = ema_generator_name
         self.target_value_func = target_value_func
@@ -50,4 +57,4 @@ class EMADeviation(TechnicalIndicator):
     def next(self, candle: Candle):
         value = self.general_pool.get_generator(self.ema_generator_name).value()
 
-        self.resultDeque.append(self.target_value_func(candle) - value)
+        self._apply_new_value(self.target_value_func(candle) - value)

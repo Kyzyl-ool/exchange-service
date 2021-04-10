@@ -41,17 +41,18 @@ class Rule:
     def exit_force(self) -> MarketOrderRequest:
         raise NotImplementedError('Необходимо унаследовать этот класс и реализовать этот метод')
 
-    def is_order_would_fulfilled(self, candle: Candle):
+    def is_order_would_fulfilled(self, candle: Candle, is_take_profit: bool, use_close_value: bool = False):
         high = candle['high']
         low = candle['low']
+        close = candle['close']
 
-        if self.opened:
-            if self.buy:
-                if high > self.take_profit or low < self.stop_loss:
-                    return True
-            else:
-                if low < self.take_profit or high > self.stop_loss:
-                    return True
+        if not self.opened:
+            return False
+
+        if is_take_profit:
+            return self.buy and (close if use_close_value else high) > self.take_profit or not self.buy and (close if use_close_value else low) < self.take_profit
+
+        return self.buy and (close if use_close_value else low) < self.stop_loss or not self.buy and (close if use_close_value else high) > self.stop_loss
 
 
 class RiskManagement(Generic[RuleType]):
@@ -63,4 +64,4 @@ class RiskManagement(Generic[RuleType]):
         self.instrument = instrument
 
     def createRule(self, buy: bool) -> RuleType:
-        return RuleType(v0=self.v0)
+        return RuleType(v0=self.v0, buy=buy)

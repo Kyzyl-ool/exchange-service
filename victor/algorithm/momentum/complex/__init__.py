@@ -1,3 +1,5 @@
+import numpy as np
+
 from victor.algorithm import ProbabilityAlgorithm
 from victor.config import GENERATOR_MAX_DEQUE_LENGTH
 from victor.exchange.types import Instrument
@@ -22,8 +24,8 @@ class MainAlgorithm(ProbabilityAlgorithm):
         self.enable_shorts = enable_shorts
         self.enable_longs = enable_longs
 
-        self._add_dependency(BarRotationGenerator(False, instrument, limit=GENERATOR_MAX_DEQUE_LENGTH))
-        self._add_dependency(Breakout(n=N, m=M, instrument=instrument))
+        self._add_dependency(BarRotationGenerator(False, instrument, limit=GENERATOR_MAX_DEQUE_LENGTH, fr=0))
+        self._add_dependency(Breakout(n=N, m=M, instrument=instrument, fr=0))
         self._add_dependency(OnlyMarketOpening(instrument, market))
         ema_generator = EMA(EMA_N, None, instrument, GENERATOR_MAX_DEQUE_LENGTH, 'close')
         self._add_dependency(ema_generator)
@@ -39,17 +41,23 @@ class MainAlgorithm(ProbabilityAlgorithm):
                                                       use_candle='close')
         self.ema_dev = ema_dev_gen
 
-        if enable_shorts:
-            self.bar_rotation_short = BarRotationGenerator(True, instrument, limit=GENERATOR_MAX_DEQUE_LENGTH)
-            self._add_dependency(self.bar_rotation_short)
-            self.breakout_short = BreakoutDown(n=N, m=M, instrument=instrument)
-            self._add_dependency(self.breakout_short)
+        self.bar_rotation_short = BarRotationGenerator(True, instrument, limit=GENERATOR_MAX_DEQUE_LENGTH, fr=0)
+        self._add_dependency(self.bar_rotation_short)
+        self.breakout_short = BreakoutDown(n=N, m=M, instrument=instrument, fr=0)
+        self._add_dependency(self.breakout_short)
 
     def _probability(self) -> float:
         bar_rotation = self.bar_rotation.value()
+        bar_rotation_short = self.bar_rotation_short.value()
+
         breakout = self.breakout.value()
+        breakout_short = self.breakout_short.value()
+
         delta_min = self.time_filter.value()
         ema_dev_value = self.ema_dev.value()
+
+        if not self.ema.correct:
+            return 0
 
         if not 15 <= delta_min <= 60:
             return 0
@@ -58,9 +66,6 @@ class MainAlgorithm(ProbabilityAlgorithm):
             return 1
         elif not self.enable_shorts:
             return 0
-
-        breakout_short = self.breakout_short.value()
-        bar_rotation_short = self.bar_rotation_short.value()
 
         if bar_rotation_short > 0 and breakout_short > 0 and ema_dev_value < 0:
             return -1

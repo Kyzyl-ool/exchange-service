@@ -15,6 +15,7 @@ from victor.generators.generator.technical_indicators.momentum import RSI
 from victor.risk_management.classic import Classic
 from victor.risk_management.momentum import MomentumRiskManagement
 from victor.trader import Trader
+from victor.utils.S import XiEta
 
 logging.basicConfig(level=logging.INFO)
 
@@ -134,7 +135,7 @@ class TraderTest(unittest.TestCase, TestExchange):
                 )
             ],
             exchange=self.exchange,
-            max_orders=2
+            max_orders=10
         )
 
         def handler(candle: Candle):
@@ -142,19 +143,39 @@ class TraderTest(unittest.TestCase, TestExchange):
             self.trader.exchange.update(candle)
             self.trader.perform_signals(candle)
 
-            # if candle['time'] >= datetime.combine(candle['time'], time(hour=18)):
-            #     self.trader.close_all_orders()
+            if candle['time'] >= datetime.combine(candle['time'], time(hour=18)):
+                self.trader.close_all_orders()
 
-        self.exchange.ohlc_subscribe(TEST_INSTRUMENT_ID, Timeframe.M1, handler)
+        self.exchange.ohlc_subscribe(TEST_INSTRUMENT_ID, Timeframe.M1, handler, run_immediately=False)
 
+        xieta = XiEta(gamma=0.0004, d=100, sl=60, b0=0.01, k=5, V=1000, data=self.exchange.df)
+        xis = xieta.get_Xi()
+        etas = xieta.get_Eta()
+        fo = open('xis', 'wb')
+        pickle.dump(xis, fo)
+        fo.close()
+        fo = open('etas', 'wb')
+        pickle.dump(etas, fo)
+        fo.close()
+
+        self.exchange.run()
+
+        self.trader.close_all_orders()
+        self.trader.exchange.update(self.exchange.last_candle)
         self.exchange.market_order(MarketOrderRequest(
             punct=TEST_INSTRUMENT['punct'],
             volume=abs(self.exchange.portfolio.V),
             buy=self.exchange.portfolio.V < 0,
             id=TEST_INSTRUMENT['id'],
         ))
-
         self.trader.exchange.update(self.exchange.last_candle)
+
+        fo = open('results.portfolio', 'wb')
+        pickle.dump(self.exchange.portfolio, fo)
+        fo.close()
+        fo = open('generators', 'wb')
+        pickle.dump(self.trader.general_pool.get_generators_log(), fo)
+        fo.close()
 
         logging.info(
             f'Финансовый результат по portfolio: {self.trader.exchange.portfolio.result()}, комиссия: ({self.trader.exchange.portfolio.getComission()})')
@@ -163,10 +184,3 @@ class TraderTest(unittest.TestCase, TestExchange):
 
         self.assertEqual(len(self.exchange.orders) - len(self.exchange.active_orders),
                          len(self.exchange.portfolio.log))
-
-        fo = open('results.portfolio', 'wb')
-        pickle.dump(self.exchange.portfolio, fo)
-        fo.close()
-        fo = open('generators', 'wb')
-        pickle.dump(self.trader.general_pool.get_generators_log(), fo)
-        fo.close()

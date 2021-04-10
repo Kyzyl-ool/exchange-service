@@ -6,7 +6,7 @@ from victor.generators.generator.technical_indicators.momentum import RS
 
 class RSI(TechnicalIndicator):
     def __init__(self, instrument: Instrument, limit: int, n: int):
-        TechnicalIndicator.__init__(self, RSI.make_name(instrument), instrument, limit)
+        TechnicalIndicator.__init__(self, RSI.make_name(instrument), instrument, limit, fr=0)
 
         self._add_dependency(RS(instrument, limit, n))
 
@@ -18,4 +18,4 @@ class RSI(TechnicalIndicator):
         else:
             result = 50
 
-        self.resultDeque.append(result)
+        super()._apply_new_value(result)

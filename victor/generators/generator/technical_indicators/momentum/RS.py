@@ -7,7 +7,7 @@ from victor.generators.generator.technical_indicators.price import D, U
 
 class RS(TechnicalIndicator):
     def __init__(self, instrument: Instrument, limit: int, n: int):
-        TechnicalIndicator.__init__(self, name=RS.make_name(instrument), instrument=instrument, limit=limit)
+        TechnicalIndicator.__init__(self, name=RS.make_name(instrument), instrument=instrument, limit=limit, fr=0)
         self.n = n
 
         self._add_dependency(U(instrument, limit))
@@ -26,4 +26,4 @@ class RS(TechnicalIndicator):
 
         result = ema_u.value() / ema_d.value() if ema_d.value() != 0 else 1
 
-        self.resultDeque.append(result)
+        super()._apply_new_value(result)

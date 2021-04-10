@@ -35,7 +35,7 @@ class TimeFilter(Generator[Candle, bool]):
 
 class OnlyMarketOpening(TechnicalIndicator):
     def __init__(self, instrument: Instrument, market: Market):
-        TechnicalIndicator.__init__(self, OnlyMarketOpening.make_name(instrument), instrument, GENERATOR_MAX_DEQUE_LENGTH)
+        TechnicalIndicator.__init__(self, OnlyMarketOpening.make_name(instrument), instrument, GENERATOR_MAX_DEQUE_LENGTH, fr=0)
         self.market = market
 
     def next(self, candle: Candle):
@@ -45,4 +45,4 @@ class OnlyMarketOpening(TechnicalIndicator):
         else:
             delta_min = x.time().minute + (x.time().hour - 10) * 60
 
-        self.resultDeque.append(delta_min)
+        super()._apply_new_value(delta_min)

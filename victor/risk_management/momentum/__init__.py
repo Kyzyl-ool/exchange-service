@@ -18,10 +18,14 @@ class MomentumRule(Rule):
         self.p0 = p0
         self.v = self.v0
 
-        self.stop_loss = p0 - self.stop_loss_punct * self.instrument['punct'] if self.buy else p0 + self.stop_loss_punct * self.instrument['punct']
-        self.take_profit = p0 + self.d*self.instrument['punct'] if self.buy else p0 - self.d*self.instrument['punct']
+        if self.buy:
+            self.stop_loss = p0 - self.stop_loss_punct * self.instrument['punct']
+            self.take_profit = p0 + self.d * self.instrument['punct']
+        else:
+            self.stop_loss = p0 + self.stop_loss_punct * self.instrument['punct']
+            self.take_profit = p0 - self.d*self.instrument['punct']
 
-        return Rule.enter_order(self, candle)
+        return super().enter_order(candle)
 
     def exit_force(self) -> MarketOrderRequest:
         self.closed = True
@@ -38,17 +42,30 @@ class MomentumRule(Rule):
     def exit_order(self, candle: Candle) -> Union[LimitOrderRequest, MarketOrderRequest]:
         close = candle['close']
 
-        if self.is_order_would_fulfilled(candle):
+        if self.is_order_would_fulfilled(candle, is_take_profit=True, use_close_value=False):
             self.closed = self.v <= self.v0*self.alpha
             if self.closed:
                 logging.debug(f'[{self.order_id}]: {self.p0} -> {close} (long)')
             if self.buy:
+                self.stop_loss = self.take_profit - self.d * self.instrument['punct']
                 self.take_profit += self.d * self.instrument['punct']
             else:
+                self.stop_loss = self.take_profit + self.d * self.instrument['punct']
                 self.take_profit -= self.d * self.instrument['punct']
 
             amount_to_release = min(self.v, self.v0*self.alpha)
-            self.v -= self.v0 * self.alpha
+            self.v -= amount_to_release
+
+            return MarketOrderRequest(
+                volume=amount_to_release,
+                punct=self.instrument['punct'],
+                buy=not self.buy,
+                id=self.instrument['id']
+            )
+
+        if self.is_order_would_fulfilled(candle, is_take_profit=False, use_close_value=True):
+            amount_to_release = self.v
+            self.closed = True
 
             return MarketOrderRequest(
                 volume=amount_to_release,

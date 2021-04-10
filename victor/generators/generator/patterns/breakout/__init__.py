@@ -5,9 +5,9 @@ from victor.generators.generator.technical_indicators import TechnicalIndicator
 
 
 class Breakout(TechnicalIndicator):
-    def __init__(self, n: int, m: int, instrument: Instrument):
+    def __init__(self, n: int, m: int, instrument: Instrument, fr: float):
         TechnicalIndicator.__init__(self, name=self.make_name(instrument, n=n, m=m), instrument=instrument,
-                                    limit=GENERATOR_MAX_DEQUE_LENGTH)
+                                    limit=GENERATOR_MAX_DEQUE_LENGTH, fr=fr)
 
         self._add_dependency(CandleAggregator(n=n, instrument=instrument))
         self.candle_aggregator = self.general_pool.select_generator(CandleAggregator, instrument, n=n)
@@ -39,7 +39,7 @@ class Breakout(TechnicalIndicator):
 
         return qualified_level
 
-    def __update_levels(self, candle_aggregated: Candle):
+    def _update_levels(self, candle_aggregated: Candle):
         c = candle_aggregated['close']
         o = candle_aggregated['open']
         h = candle_aggregated['high']
@@ -67,7 +67,7 @@ class Breakout(TechnicalIndicator):
             'id': len(self.levels)
         }
 
-    def __check_broken_levels(self, candle: Candle):
+    def _check_broken_levels(self, candle: Candle):
         for level in self.levels.values():
             d2 = level['d2']
 
@@ -90,12 +90,12 @@ class Breakout(TechnicalIndicator):
             self.levels = new_levels
 
             # обнолвние уровней
-            self.__update_levels(candle_aggregated)
+            self._update_levels(candle_aggregated)
 
         # определяем, есть ли пробой
-        self.__check_broken_levels(candle)
+        self._check_broken_levels(candle)
 
-        self.resultDeque.append(self.norm(w=10.0, bias=self.instrument['punct']))
+        self._apply_new_value(self.norm(w=10.0, bias=self.instrument['punct']))
 
     def norm(self, w=1.0, bias=0.01):
         result = 0
@@ -106,7 +106,7 @@ class Breakout(TechnicalIndicator):
 
 
 class BreakoutDown(Breakout):
-    def __update_levels(self, candle_aggregated: Candle):
+    def _update_levels(self, candle_aggregated: Candle):
         c = candle_aggregated['close']
         o = candle_aggregated['open']
         l = candle_aggregated['low']
@@ -132,7 +132,7 @@ class BreakoutDown(Breakout):
             'id': len(self.levels)
         }
 
-    def __check_broken_levels(self, candle: Candle):
+    def _check_broken_levels(self, candle: Candle):
         for level in self.levels.values():
             d2 = level['d2']
 

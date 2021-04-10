@@ -7,10 +7,10 @@ from victor.generators.generator.technical_indicators import TechnicalIndicator
 
 
 class BarRotationGenerator(TechnicalIndicator):
-    def __init__(self, short: bool, instrument: Instrument, limit=GENERATOR_MAX_DEQUE_LENGTH):
+    def __init__(self, short: bool, instrument: Instrument, fr: float, limit=GENERATOR_MAX_DEQUE_LENGTH):
         TechnicalIndicator.__init__(self, name=BarRotationGenerator.make_name(instrument, short=short),
                                     instrument=instrument,
-                                    limit=limit)
+                                    limit=limit, fr=fr)
 
         self._add_dependency(HeikenAshi(instrument))
         self.first_white_bars_amount = 0
@@ -76,7 +76,8 @@ class BarRotationGenerator(TechnicalIndicator):
 
     def next(self, candle: Candle):
         result = self.__next(candle)
-        self.resultDeque.append(self.norm(result, bias=self.instrument['punct'], w1=10.0, w2=10.0))
+
+        self._apply_new_value(self.norm(result, bias=self.instrument['punct'], w1=10.0, w2=10.0))
         return result
 
     def norm(self, item, w1=1.0, w2=1.0, bias=0.01) -> float:
