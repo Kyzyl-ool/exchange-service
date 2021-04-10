@@ -6,7 +6,7 @@ from victor.generators.generator.technical_indicators import TechnicalIndicator
 
 class Breakout(TechnicalIndicator):
     def __init__(self, n: int, m: int, instrument: Instrument):
-        TechnicalIndicator.__init__(self, name=Breakout.make_name(instrument, n=n, m=m), instrument=instrument,
+        TechnicalIndicator.__init__(self, name=self.make_name(instrument, n=n, m=m), instrument=instrument,
                                     limit=GENERATOR_MAX_DEQUE_LENGTH)
 
         self._add_dependency(CandleAggregator(n=n, instrument=instrument))
@@ -39,6 +39,41 @@ class Breakout(TechnicalIndicator):
 
         return qualified_level
 
+    def __update_levels(self, candle_aggregated: Candle):
+        c = candle_aggregated['close']
+        o = candle_aggregated['open']
+        h = candle_aggregated['high']
+        l = candle_aggregated['low']
+        v = candle_aggregated['volume']
+        t = candle_aggregated['time']
+
+        co_max = max(c, o)
+
+        for level in self.levels.values():
+            d1 = level['d1']
+            d2 = level['d2']
+
+            if c <= d2:
+                if h > d2:
+                    level['d2'] = max(d2, h)
+                if co_max > d1:
+                    level['d1'] = max(d1, co_max)
+
+        self.levels[len(self.levels)] = {
+            'd1': co_max,
+            'd2': h,
+            'time': t,
+            'i': len(self.candle_aggregator.resultDeque) - 1,
+            'id': len(self.levels)
+        }
+
+    def __check_broken_levels(self, candle: Candle):
+        for level in self.levels.values():
+            d2 = level['d2']
+
+            if candle['close'] > d2:
+                self.broken_levels.append(level)
+
     def next(self, candle: Candle):
         for level in self.broken_levels:
             del self.levels[level['id']]
@@ -49,51 +84,57 @@ class Breakout(TechnicalIndicator):
         candle_aggregated = candle_aggregator.value()
 
         if candle_aggregated:
-            c = candle_aggregated['close']
-            o = candle_aggregated['open']
-            h = candle_aggregated['high']
-            l = candle_aggregated['low']
-            v = candle_aggregated['volume']
-            t = candle_aggregated['time']
-
-            co_max = max(c, o)
-
             new_levels = {}
             for x in filter(self.__filter_func, self.levels.values()):
                 new_levels[x['id']] = x
             self.levels = new_levels
 
             # обнолвние уровней
-            for level in self.levels.values():
-                d1 = level['d1']
-                d2 = level['d2']
-
-                if c <= d2:
-                    if h > d2:
-                        level['d2'] = max(d2, h)
-                    if co_max > d1:
-                        level['d1'] = max(d1, co_max)
-
-            self.levels[len(self.levels)] = {
-                'd1': co_max,
-                'd2': h,
-                'time': t,
-                'i': len(self.candle_aggregator.resultDeque) - 1,
-                'id': len(self.levels)
-            }
+            self.__update_levels(candle_aggregated)
 
         # определяем, есть ли пробой
-        for level in self.levels.values():
-            d2 = level['d2']
-
-            if candle['close'] > d2:
-                self.broken_levels.append(level)
+        self.__check_broken_levels(candle)
 
         self.resultDeque.append(self.norm(w=10.0, bias=self.instrument['punct']))
 
     def norm(self, w=1.0, bias=0.01):
         result = 0
         for item in self.broken_levels:
-            result += (item['d2'] - item['d1']) * w + bias
+            result += abs(item['d2'] - item['d1']) * w + bias
 
         return result
+
+
+class BreakoutDown(Breakout):
+    def __update_levels(self, candle_aggregated: Candle):
+        c = candle_aggregated['close']
+        o = candle_aggregated['open']
+        l = candle_aggregated['low']
+        t = candle_aggregated['time']
+
+        co_max = max(c, o)
+
+        for level in self.levels.values():
+            d1 = level['d1']
+            d2 = level['d2']
+
+            if c >= d2:
+                if l < d2:
+                    level['d2'] = min(d2, l)
+                if co_max < d1:
+                    level['d1'] = min(d1, co_max)
+
+        self.levels[len(self.levels)] = {
+            'd1': co_max,
+            'd2': l,
+            'time': t,
+            'i': len(self.candle_aggregator.resultDeque) - 1,
+            'id': len(self.levels)
+        }
+
+    def __check_broken_levels(self, candle: Candle):
+        for level in self.levels.values():
+            d2 = level['d2']
+
+            if candle['close'] < d2:
+                self.broken_levels.append(level)
