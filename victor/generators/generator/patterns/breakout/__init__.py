@@ -112,7 +112,7 @@ class BreakoutDown(Breakout):
         l = candle_aggregated['low']
         t = candle_aggregated['time']
 
-        co_max = max(c, o)
+        co_min = min(c, o)
 
         for level in self.levels.values():
             d1 = level['d1']
@@ -121,11 +121,11 @@ class BreakoutDown(Breakout):
             if c >= d2:
                 if l < d2:
                     level['d2'] = min(d2, l)
-                if co_max < d1:
-                    level['d1'] = min(d1, co_max)
+                if co_min < d1:
+                    level['d1'] = min(d1, co_min)
 
         self.levels[len(self.levels)] = {
-            'd1': co_max,
+            'd1': co_min,
             'd2': l,
             'time': t,
             'i': len(self.candle_aggregator.resultDeque) - 1,
